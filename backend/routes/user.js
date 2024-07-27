@@ -1,5 +1,3 @@
-
-
 const { error } = require("console")
 const express = require("express")
 const zod = require("zod")
@@ -101,8 +99,31 @@ const OwnerSchema = zod.object({
 // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0ZTA4NDg4NTZlYzcyNjllMDFiODQiLCJpYXQiOjE3MjIwODU5ODN9.DD7gmA7O - sibM5cMf3iEGa0Ew18vKQrN_sjfrEKunOA
 router.post("/apply", async (req, res) => {
     const success = OwnerSchema.safeParse(req.body);
-
     const createOwner = Owner.create(mainUser);
 })
 
+router.post("/dashboard", async (req, res) => {
+    const filter = req.query.filter || "";
+
+    const owner = await Owner.find({
+        $or: [{
+            firstName: {
+                "$regex": filter
+            }
+        }, {
+            lastName: {
+                "$regex": filter
+            }
+        }]
+    })
+
+    res.json({
+        user: owner.map(owner => ({
+            username: owner.username,
+            firstName: owner.firstName,
+            lastName: owner.lastName,
+            _id: owner._id
+        }))
+    })
+})
 module.exports = router
