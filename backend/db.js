@@ -1,8 +1,12 @@
 // backend/db.js
+const express = require("express")
 const mongoose = require('mongoose');
+// require('dotenv').config();
 
-// mongoose.connect("mongodb://localhost:27017/HostelRentalSystem");
-mongoose.connect("mongodb+srv://abhishekujale799:NF5SPkYHK7F2R6Zb@cluster0.afahnsj.mongodb.net/HostelRentalSystem");
+require('dotenv').config();
+console.log(process.env.MONGO_URI);
+
+mongoose.connect(process.env.MONGO_URI);
 
 // Create a Schema for Users
 const userSchema = new mongoose.Schema({

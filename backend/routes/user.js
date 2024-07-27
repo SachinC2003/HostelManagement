@@ -45,7 +45,7 @@ router.post("/signup", async (req, res) => {
     }, JWT_SECRET);
 
     res.json({
-        message: "LastUser",
+        message: "User Succesfully Created",
         token: token
     })
 })
@@ -66,6 +66,20 @@ router.post("/signin", async (req, res) => {
         password: req.body.password
     })
 
+
+    // --*******************************--
+
+
+    global.mainUser = findUser;
+
+
+    // --*******************************--
+
+    if (!findUser) {
+        return res.status(400).json({
+            msg: "Invalid Credentials"
+        })
+    }
     if (findUser) {
         const token = jwt.sign({
             userId: findUser._id
@@ -73,8 +87,22 @@ router.post("/signin", async (req, res) => {
         res.json({
             token
         })
+        return;
     }
-    return;
+
+})
+
+const OwnerSchema = zod.object({
+    username: zod.string().email(),
+    firstName: zod.string(),
+    lastName: zod.string(),
+    password: zod.string()
+})
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0ZTA4NDg4NTZlYzcyNjllMDFiODQiLCJpYXQiOjE3MjIwODU5ODN9.DD7gmA7O - sibM5cMf3iEGa0Ew18vKQrN_sjfrEKunOA
+router.post("/apply", async (req, res) => {
+    const success = OwnerSchema.safeParse(req.body);
+
+    const createOwner = Owner.create(mainUser);
 })
 
 module.exports = router
