@@ -1,12 +1,15 @@
 // backend/db.js
-const express = require("express")
+require('dotenv').config();
+
 const mongoose = require('mongoose');
 // require('dotenv').config();
 
 require('dotenv').config();
 console.log(process.env.MONGO_URI);
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI).then((data) => {
+    console.log("connected to MongoDB");
+  });
 
 // Create a Schema for Users
 const userSchema = new mongoose.Schema({
