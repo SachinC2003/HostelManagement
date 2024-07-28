@@ -1,52 +1,53 @@
-const { error } = require("console")
-const express = require("express")
-const zod = require("zod")
-const router = express.Router()
-const { User, Owner } = require("../db")
-const jwt = require("jsonwebtoken")
-const { JWT_SECRET } = require("../config")
-const { verifyToken } = require("../middleware")
+const express = require("express");
+const zod = require("zod");
+const router = express.Router();
+const { User } = require("../db");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config");
 
 const signupBody = zod.object({
     username: zod.string().email(),
     firstName: zod.string(),
     lastName: zod.string(),
     password: zod.string()
-})
+});
 
 router.post("/signup", async (req, res) => {
-    const success = signupBody.safeParse(req.body)
-    if (!success) {
+    const success = signupBody.safeParse(req.body);
+    if (!success.success) {
         return res.status(403).json({
-            message: "incorrect Input"
-        })
+            message: "Incorrect input"
+        });
     }
-    const exisingUser = await User.findOne({
+    const existingUser = await User.findOne({
         username: req.body.username
-    })
-    if (exisingUser) {
+    });
+    if (existingUser) {
         return res.status(411).json({
             message: "Email already taken"
-        })
+        });
     }
 
-    const CreateUser = await User.create({
+    const newUser = await User.create({
         username: req.body.username,
         firstName: req.body.firstName,
-        password: req.body.password,
-        lastName: req.body.lastName
-    })
+        lastName: req.body.lastName,
+        password: req.body.password
+    });
 
-    const userId = CreateUser._id;
-    const token = jwt.sign({
-        userId
-    }, JWT_SECRET);
+    const userId = newUser._id;
+    const token = jwt.sign({ userId }, JWT_SECRET);
 
     res.json({
-        message: "User Succesfully Created",
+        message: "User successfully created",
         token: token
-    })
-})
+    });
+});
+
+const signinBody = zod.object({
+    username: zod.string().email(),
+    password: zod.string()
+});
 
 const signinbody = zod.object({
     username: zod.string().email(),
