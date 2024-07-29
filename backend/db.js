@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true, minLength: 6 },
     firstName: { type: String, required: true, trim: true, maxLength: 50 },
     lastName: { type: String, required: true, trim: true, maxLength: 50 },
-    role: {type : String, enum: ["user", "owner"]},
-    gender :{type : String, enum :["male", "female", "other"]}
+    role: {type : String, enum: ["User", "Owner"]},
+    gender :{type : String, enum :["Male", "Female", "Other"]}
 });
 
 const ownerSchema = new mongoose.Schema({
@@ -26,8 +26,8 @@ const ownerSchema = new mongoose.Schema({
     password: { type: String, required: true, minLength: 6 },
     firstName: { type: String, required: true, trim: true, maxLength: 50 },
     lastName: { type: String, trim: true, maxLength: 50 },
-    role: {type : String, enum: ["user", "owner"]},
-    gender :{type : String, enum :["male", "female", "other"]}
+    role: {type : String, enum: ["User", "Owner"]},
+    gender :{type : String, enum :["Male", "Female", "Other"]}
 });
 
 

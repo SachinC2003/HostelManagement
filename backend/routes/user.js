@@ -4,7 +4,19 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User, Hostel } = require("../db");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config");
+import authmiddleware from '../middlewares/authmiddleware'
+
+router.get('/me', authmiddleware, async (req, res) => {
+    try {
+      const user = await User.findById(req.userId).select('-password'); // Exclude password from the response
+      if (!user) {
+        return res.status(404).send({ message: 'User not found' });
+      }
+      res.status(200).send(user);
+    } catch (error) {
+      res.status(500).send({ message: 'Server error' });
+    }
+  });
 
 const signupBody = zod.object({
     email: zod.string().email(),
