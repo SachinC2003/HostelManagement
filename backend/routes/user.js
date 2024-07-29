@@ -1,109 +1,92 @@
 const express = require("express");
 const zod = require("zod");
 const router = express.Router();
-const { User } = require("../db");
+const bcrypt = require('bcrypt');
+const { User, Hostel } = require("../db");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 
 const signupBody = zod.object({
-    username: zod.string().email(),
+    email: zod.string().email(),
     firstName: zod.string(),
     lastName: zod.string(),
-    password: zod.string()
+    password: zod.string(),
+    role : zod.string(),
+    gender : zod.string()
 });
 
 router.post("/signup", async (req, res) => {
     const success = signupBody.safeParse(req.body);
     if (!success.success) {
-        return res.status(403).json({
-            message: "Incorrect input"
-        });
-    }
-    const existingUser = await User.findOne({
-        username: req.body.username
-    });
-    if (existingUser) {
-        return res.status(411).json({
-            message: "Email already taken"
+        return res.status(400).json({
+            message: "Incorrect input",
+            errors: success.error.errors // Send the validation errors to the client
         });
     }
 
-    const newUser = await User.create({
-        username: req.body.username,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        password: req.body.password
-    });
+    try {
+        const existingUser = await User.findOne({ email: req.body.email });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email already taken" });
+        }
 
-    const userId = newUser._id;
-    const token = jwt.sign({ userId }, JWT_SECRET);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    res.json({
-        message: "User successfully created",
-        token: token
-    });
+        const newUser = await User.create({
+            ...req.body,
+            password: hashedPassword
+        });
+
+        const userId = newUser._id;
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(201).json({
+            message: "User successfully created",
+            token: token
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
-const signinBody = zod.object({
-    username: zod.string().email(),
-    password: zod.string()
-});
 
 const signinbody = zod.object({
-    username: zod.string().email(),
+    email: zod.string().email(),
     password: zod.string()
 })
+
 router.post("/signin", async (req, res) => {
     const success = signinbody.safeParse(req.body);
-    if (!success) {
-        return res.status(403).json({
-            msg: "Invalid Input"
-        })
-    }
-    const findUser = await User.findOne({
-        username: req.body.username,
-        password: req.body.password
-    })
-
-
-    // --*******************************--
-
-
-    global.mainUser = findUser;
-
-
-    // --*******************************--
-
-    if (!findUser) {
+    if (!success.success) {
         return res.status(400).json({
-            msg: "Invalid Credentials"
-        })
-    }
-    if (findUser) {
-        const token = jwt.sign({
-            userId: findUser._id
-        }, JWT_SECRET);
-        res.json({
-            token
-        })
-        return;
+            message: "Invalid Input",
+            errors: success.error.errors // Include validation errors if any
+        });
     }
 
-})
+    try {
+        const findUser = await User.findOne({ email: req.body.email });
+        if (!findUser) {
+            return res.status(400).json({ message: "Invalid Credentials" });
+        }
 
-const OwnerSchema = zod.object({
-    username: zod.string().email(),
-    firstName: zod.string(),
-    lastName: zod.string(),
-    password: zod.string()
-})
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE0ZTA4NDg4NTZlYzcyNjllMDFiODQiLCJpYXQiOjE3MjIwODU5ODN9.DD7gmA7O - sibM5cMf3iEGa0Ew18vKQrN_sjfrEKunOA
-router.post("/apply", async (req, res) => {
-    const success = OwnerSchema.safeParse(req.body);
-    const createOwner = Owner.create(mainUser);
-})
+        const isPasswordValid = await bcrypt.compare(req.body.password, findUser.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: "Invalid Credentials" });
+        }
 
-router.post("/dashboard", async (req, res) => {
+        const token = jwt.sign({ userId: findUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token, message: "Signed in successfully" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.get("/dashboard", async (req, res) => {
     const filter = req.query.filter || "";
 
     const owner = await Owner.find({
@@ -120,11 +103,39 @@ router.post("/dashboard", async (req, res) => {
 
     res.json({
         user: owner.map(owner => ({
-            username: owner.username,
+            email: owner.email,
             firstName: owner.firstName,
             lastName: owner.lastName,
             _id: owner._id
         }))
     })
-})
+});
+
+router.get('/hostel', async (req, res) => {
+    try {
+        const hostels = await Hostel.find({});
+        
+        if (hostels.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                message: 'No hostels found.'
+            });
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: 'Hostels retrieved successfully.',
+            data: hostels
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            message: 'Internal Server Error',
+            error: error.message
+        });
+    }
+});
+
+
+
 module.exports = router
