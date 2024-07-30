@@ -5,8 +5,10 @@ import axios from 'axios';
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
+import Home from "./Pages/Home";
 import { userAtom } from "./Store/userAtom"
-
+import { TbTruckLoading } from "react-icons/tb";
+import Landing from "./Pages/Landing";
 
 function AppContent() {
   const setUser = useSetRecoilState(userAtom);
@@ -45,7 +47,11 @@ function AppContent() {
   }, [setUser]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (<div  className="bg-gray-600 overflow-hidden">
+        <div className="flex justify-center">
+        <h1 className="text-black text-5xl font-bold" >OFFLINE</h1>
+      </div><TbTruckLoading className="flex w-screen h-screen -mt-10" />
+    </div>);
   }
 
   return (
@@ -53,7 +59,7 @@ function AppContent() {
       <Routes>
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/dashboard" element={<Layout><home /></Layout>} />
+        <Route path="/dashboard" element={<Layout><Home /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
@@ -63,6 +69,8 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
+      <Layout/>
+      {/* <Landing/> */}
     </RecoilRoot>
   );
 }
