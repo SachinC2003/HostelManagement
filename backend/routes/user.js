@@ -4,7 +4,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User, Hostel } = require("../db");
 const jwt = require("jsonwebtoken");
-import authmiddleware from '../middlewares/authmiddleware'
+const authmiddleware = require('../middlewares/authmiddleware')
 
 router.get('/me', authmiddleware, async (req, res) => {
     try {

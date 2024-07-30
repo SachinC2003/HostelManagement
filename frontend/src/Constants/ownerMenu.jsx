@@ -16,7 +16,7 @@ const ownerMenu =[
     },
     {
         name : "Logout",
-        path : "/logout",
+        path : "/",
         icon:'ri-logout-box-line'
     }
 ]

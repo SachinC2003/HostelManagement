@@ -1,10 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { RecoilRoot, useSetRecoilState } from "recoil";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
+import UplodeHostel from "./Pages/UplodeHostel";
 import { userAtom } from "./Store/userAtom"
 
 
@@ -53,7 +56,7 @@ function AppContent() {
       <Routes>
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/dashboard" element={<Layout><home /></Layout>} />
+        <Route path="/dashboard" element={<Layout><UplodeHostel /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
@@ -63,6 +66,7 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
+      <ToastContainer />
     </RecoilRoot>
   );
 }

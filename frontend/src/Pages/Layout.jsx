@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
 import { userMenu, ownerMenu } from '../Constants/index';
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../Store/userAtom";
@@ -8,6 +9,7 @@ import { userAtom } from "../Store/userAtom";
 const Layout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const user = useRecoilValue(userAtom);
+  const navigate = useNavigate();
   console.log("User state in Layout:", user);
 
   const menuToBeRendered = user.role === 'admin' ? adminMenu
@@ -16,6 +18,13 @@ const Layout = ({ children }) => {
 
   console.log("User role:", user.role);
   console.log(menuToBeRendered);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+      localStorage.removeItem("token");
+      navigate('/')
+      console.log('User logged out');
+  };
 
   return (
     <div className="h-screen flex">
@@ -30,6 +39,7 @@ const Layout = ({ children }) => {
               key={index} 
               to={menu.path} 
               className="block px-6 py-4 mb-4 hover:bg-indigo-700 transition duration-150 ease-in-out"
+              onClick={menu.name === 'Logout' ? handleLogout : undefined}
             >
               <div className="flex items-center">
                 <i className={`${menu.icon} text-2xl`}></i>
