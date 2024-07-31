@@ -77,8 +77,8 @@ router.post("/signin", async (req, res) => {
             return res.status(400).json({ message: "Invalid Credentials" });
         }
 
-        const token = jwt.sign({ ownerId: findOwner._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, message: "Signed in successfully" });
+        const token = jwt.sign({ userId: findOwner._id, role: findOwner.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token, userId: findOwner._id, role: findOwner.role, gender: findOwner.gender });
 
     } catch (error) {
         console.error(error);
@@ -87,17 +87,22 @@ router.post("/signin", async (req, res) => {
 });
 
 router.post("/uploderoom", async (req, res) => {
-    const { hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
+    const { owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
+    console.log("Received data:", req.body);
 
-    if (!hostelName || !area || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
+    if (!owner || !hostelName || !area || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
         return res.status(400).json({
             status: 400,
-            message: 'Bad Request: All fields are required.'
+            message: 'Bad Request: All fields are required.',
+            missingFields: Object.entries({ owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy })
+                .filter(([key, value]) => !value)
+                .map(([key]) => key)
         });
     }
 
     try {
         const hostel = await Hostel.create({
+            owner,
             hostelName,
             area,
             rooms,
@@ -118,10 +123,12 @@ router.post("/uploderoom", async (req, res) => {
             data: hostel
         });
     } catch (error) {
+        console.error("Error creating hostel:", error);
         res.status(500).json({
             status: 500,
             message: 'Internal Server Error',
-            error: error.message
+            error: error.message,
+            details: error.errors ? Object.values(error.errors).map(err => err.message) : undefined
         });
     }
 });

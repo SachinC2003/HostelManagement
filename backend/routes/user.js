@@ -4,7 +4,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User, Hostel } = require("../db");
 const jwt = require("jsonwebtoken");
-import authmiddleware from '../middlewares/authmiddleware'
+const authmiddleware = require('../middlewares/authmiddleware');
 
 router.get('/me', authmiddleware, async (req, res) => {
     try {
@@ -65,6 +65,7 @@ router.post("/signup", async (req, res) => {
 
 
 const signinbody = zod.object({
+    role: zod.string(),
     email: zod.string().email(),
     password: zod.string()
 })
@@ -89,8 +90,8 @@ router.post("/signin", async (req, res) => {
             return res.status(400).json({ message: "Invalid Credentials" });
         }
 
-        const token = jwt.sign({ userId: findUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, message: "Signed in successfully" });
+        const token = jwt.sign({ userId: findUser._id, role: findUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token, userId: findUser._id, role: findUser.role, gender: findUser.gender });
 
     } catch (error) {
         console.error(error);

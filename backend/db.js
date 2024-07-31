@@ -34,7 +34,7 @@ const ownerSchema = new mongoose.Schema({
 const hostelSchema = new mongoose.Schema({
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },
     hostelName: { type: String, required: true },
-    area: { type: String, enum: ["main-gate", "bharati", "st-colony", "ujalaewadi", "around-college"], required: true },
+    area: { type: String, enum: ['Near Kit college', 'ST colony', 'Near Main Gate', 'Bharati Vidyapeeth'],required: true },
     rooms: { type: Number, required: true },
     sharing: { type: Number, required: true },
     totalStudents: { type: Number, required: true },
@@ -44,7 +44,7 @@ const hostelSchema = new mongoose.Schema({
     wifi: { type: String, enum: ["yes", "no"], required: true },
     ventilation: { type: String, enum: ["yes", "no"], required: true },
     drinkingWater: { type: String, enum: ["yes", "no"], required: true },
-    vacancy : {type:String, enum:["fill", "vacunt"], required: true}
+    vacancy : {type:String, enum:["fill", "vacant"], required: true}
 });
 
 const Owner = mongoose.model('owner', ownerSchema);

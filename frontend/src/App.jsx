@@ -1,14 +1,16 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { RecoilRoot, useSetRecoilState } from "recoil";
 import { useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
-import Home from "./Pages/Home";
 import { userAtom } from "./Store/userAtom"
 import { TbTruckLoading } from "react-icons/tb";
-import Landing from "./Pages/Landing";
+import UplodeHostel from "./Pages/UplodeHostel"
+import UpdateHostel from "./Pages/UpdateHostel";
 
 function AppContent() {
   const setUser = useSetRecoilState(userAtom);
@@ -29,13 +31,21 @@ function AppContent() {
           console.error("userId is missing from the response");
           throw new Error("Invalid response from server");
         }
-        setUser({ userId: response.data.userId, role: response.data.role || 'user', gender:response.data.gender});
-        console.log("User state set:", { userId: response.data.userId, role: response.data.role || 'user', gender:response.data.gender });
+        setUser({ 
+          userId: response.data.userId, 
+          role: response.data.role || 'User', 
+          gender: response.data.gender 
+        });
+        console.log("User state set:", { 
+          userId: response.data.userId, 
+          role: response.data.role || 'User', 
+          gender: response.data.gender 
+        });
       })
       .catch(error => {
         console.error('Error verifying token:', error.response ? error.response.data : error.message);
         localStorage.removeItem('token');
-        setUser({ userId: null, role: '', gender:'' }); // Reset user state on error
+        setUser({ userId: null, role: '', gender: '' }); // Reset user state on error
       })
       .finally(() => {
         setIsLoading(false);
@@ -45,6 +55,7 @@ function AppContent() {
       setIsLoading(false);
     }
   }, [setUser]);
+  
 
   if (isLoading) {
     return (<div  className="bg-gray-600 overflow-hidden">
@@ -59,7 +70,10 @@ function AppContent() {
       <Routes>
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/dashboard" element={<Layout><Home /></Layout>} />
+        <Route path="/home" element={<Layout><UpdateHostel /></Layout>} />
+        <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
+        <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
+        <Route path="/dashboard" element={<Layout><UplodeHostel /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
@@ -69,7 +83,6 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
-      <Layout/>
       <ToastContainer />
     </RecoilRoot>
   );

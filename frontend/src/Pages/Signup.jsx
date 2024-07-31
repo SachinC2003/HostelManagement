@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { useSetRecoilState } from 'recoil';
 import {userAtom} from '../Store/userAtom'
+import { useNavigate } from 'react-router-dom';
 import Input from '../Components/Input';
 import {Link} from "react-router-dom"
 import Dropdown from '../Components/Dropdown';
@@ -14,35 +16,35 @@ const Signup = () => {
   const [gender, setGender] = useState('');
   const [role, setRole] = useState('')
 
+  const navigate = useNavigate();
   const setUser = useSetRecoilState(userAtom);
 
   const handleSignup = async(e) => {
     e.preventDefault();
-      try{
-        const response = await axios.post("http://localhost:3000/api/v1/user/signup",{
-           email, firstName, lastName, password, gender, role
-        })
-        console.log("signup req. response", response.data)
+    try {
+      const endpoint = role === 'User' ? "http://localhost:3000/api/v1/user/signup" : "http://localhost:3000/api/v1/owner/signup";
+      const response = await axios.post(endpoint, { email, firstName, lastName, password, gender, role });
+      console.log("signup req. response", response.data);
 
-        if(response.data)
-        {
-           localStorage.setItem('token', response.data.token);
-           setUser({
-             userId : response.data.userId,
-             role : response.data.role,
-             gender : response.data.gender
-           })
-           console.log("User state set:", { userId: response.data.userId, role: response.data.role, gender:response.data.gender });
-           navigate("/dashboard");
-         } else {
-           console.error("Authentication successful but token is missing in the response");
-           alert("Authentication successful, but there was an issue. Please try again.");
-         }
-       } catch (error) {
-         console.error('Authentication error:', error.response ? error.response.data : error);
-         alert(error.response?.data?.msg || "An error occurred. Please try again.");
-       }
-     };
+      if(response.data) {
+        localStorage.setItem('token', response.data.token);
+        setUser({
+          userId: response.data.userId,
+          role: response.data.role,
+          gender: response.data.gender
+        });
+        console.log("User state set:", { userId: response.data.userId, role: response.data.role, gender:response.data.gender });
+        toast.success("Signup successful!");
+        navigate("/dashboard");
+      } else {
+        console.error("Authentication successful but token is missing in the response");
+        toast.error("Authentication successful, but there was an issue. Please try again.");
+      }
+    } catch (error) {
+      console.error('Authentication error:', error.response ? error.response.data : error);
+      toast.error(error.response?.data?.msg || "An error occurred. Please try again.");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -76,10 +78,11 @@ const Signup = () => {
             >
               Sign Up
             </button>
-          </div >
-          <div className='text-md'>
-         Already have an accound ? <span className='text-slate-500'>Signin</span> 
- </div>       </form>
+          </div >       
+          <div className='text-md text-center'>
+              Already have an accound ? <Link to="/signin" className='text-slate-500'>Signin</Link>
+          </div>
+        </form>
       </div>
     </div>
   );
