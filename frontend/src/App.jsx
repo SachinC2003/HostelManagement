@@ -70,7 +70,12 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
+<<<<<<< HEAD
       <Landing/>
+=======
+      <Layout/>
+      <ToastContainer />
+>>>>>>> a91c817857519e90be7399b4541d10cb8dbb2bfb
     </RecoilRoot>
   );
 }
