@@ -6,6 +6,7 @@ import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
 import Home from "./Pages/Home";
+import Navbar from "../src/Components/Navbar"
 import { userAtom } from "./Store/userAtom"
 import { TbTruckLoading } from "react-icons/tb";
 import Landing from "./Pages/Landing";
@@ -69,8 +70,7 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
-      <Layout/>
-      {/* <Landing/> */}
+      <Landing/>
     </RecoilRoot>
   );
 }
