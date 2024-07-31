@@ -149,5 +149,44 @@ router.get("/myrooms", async(req, res)=>{
     }
 });
 
+router.get("hostel/:id", async()=>{
+    try{
+        const hostelId = req.params.id;
+
+        const hostel = await Hostel.findById(hostelId);
+        if(!hostel){
+            res.status(404).json({status: 404, message: 'Hostel with this Id not present'});
+        }
+        
+        res.status(200).json({ status: 200, data: hostel });
+    } catch (error) {
+        res.status(500).json({ status: 500, message: 'Internal Server Error', error: error.message });
+    }
+});
+
+router.put("/update", async(req, res) =>{
+    try{
+        const {hostelId, ...updateData} = req.body;
+        const hostel = await Hostel.findById(hostelId);
+
+        if(!hostel){
+            res.status(404).json({status: 404, message: 'Hostel with this Id not present'});
+        }
+
+        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, ...updateData, {new : true});
+
+        res.status(200).json({
+            status: 200,
+            message: 'Hostels info updated successfully.',
+            data: updatedHostel
+        });
+    }catch(error){
+        res.status(500).json({
+            status: 500,
+            message: 'Internal Server Error',
+            error: error.message
+        });
+    }
+})
 
 module.exports = router;

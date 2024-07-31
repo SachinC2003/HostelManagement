@@ -70,7 +70,7 @@ function App() {
     <RecoilRoot>
       <AppContent />
       <Layout/>
-      {/* <Landing/> */}
+      <ToastContainer />
     </RecoilRoot>
   );
 }
