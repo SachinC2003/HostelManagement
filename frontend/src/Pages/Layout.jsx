@@ -1,21 +1,32 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { userMenu, ownerMenu } from '../Constants/index';
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState} from "recoil";
 import { userAtom } from "../Store/userAtom";
 import { RxCross1 } from "react-icons/rx";
 import { CgMenuLeftAlt } from "react-icons/cg";
 const Layout = ({ children }) => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const user = useRecoilValue(userAtom);
+  const setUser = useSetRecoilState(userAtom)
+  const navigate = useNavigate(userAtom);
   console.log("User state in Layout:", user);
 
-  const menuToBeRendered = user.role === 'admin' ? adminMenu
-                         : user.role === 'teacher' ? teacherMenu
+  const menuToBeRendered = user.role === 'Owner' ? ownerMenu
                          : userMenu;
 
   console.log("User role:", user.role);
   console.log(menuToBeRendered);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("token");
+    setUser({ userId: null, role: '', gender: '' });
+    navigate('/signin');
+    console.log('User logged out');
+  };
+  
 
   return (
     <div className="h-screen flex ">
@@ -36,7 +47,7 @@ const Layout = ({ children }) => {
               key={index} 
               to={menu.path} 
               className="block px-6 py-4 mb-4 hover:bg-cyan-800 transition duration-150 ease-in-out"
-             
+              onClick={menu.name === 'Logout' ? handleLogout : undefined}
             >
               <div className="flex items-center">
                 <span>   {menu.icon} </span>

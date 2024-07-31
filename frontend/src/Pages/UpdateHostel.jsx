@@ -1,104 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
-import { userAtom } from '../Store/userAtom';
 
-function UplodeHostel() {
-  const user = useRecoilValue(userAtom);
+function UpdateHostel({ hostelId }) {
   const [formData, setFormData] = useState({
-    hostelName: '',
+    name: '',
     area: '',
-    rooms: '',
+    room: '',
     sharing: '',
     totalStudents: '',
     price: '',
-    contact: '',
     hotWater: '',
     wifi: '',
     ventilation: '',
     drinkingWater: '',
-    vacancy: ''
   });
 
   useEffect(() => {
-    if (!user || !user.userId) {
-      toast.error('User ID is not available. Please try logging in again.');
-    }
-  }, [user]);
+    const fetchHostelData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/v1/owner/hostel/${hostelId}`);
+        setFormData(response.data);
+      } catch (error) {
+        toast.error('Error fetching hostel data!');
+      }
+    };
+
+    fetchHostelData();
+  }, [hostelId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: ['rooms', 'sharing', 'totalStudents', 'price', 'contact'].includes(name) 
-        ? Number(value) 
-        : value,
-    }));
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Full user object:', user);
-    const ownerId = user.userId || user._id || user.id;  // Adjust based on actual structure
-    if (!ownerId) {
-      toast.error('User ID is not available. Please try logging in again.');
-      return;
-    }
     try {
-      const dataToSubmit = {
-        ...formData,
-        owner: ownerId,
-        rooms: Number(formData.rooms),
-        sharing: Number(formData.sharing),
-        totalStudents: Number(formData.totalStudents),
-        price: Number(formData.price),
-        contact: Number(formData.contact)
-      };
-      console.log('Data being submitted:', dataToSubmit);
-      const response = await axios.post("http://localhost:3000/api/v1/owner/uploderoom", dataToSubmit, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Server response:', response.data);
-      toast.success('Hostel information submitted successfully!');
-      resetForm();  // Reset form after successful submission
+      const response = await axios.put(`http://localhost:3000/api/v1/owner/hostel/${hostelId}`, formData);
+      toast.success('Hostel information updated successfully!');
     } catch (error) {
-      console.error('Error object:', error);
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
-      toast.error(`Error submitting form data: ${error.response?.data?.message || error.message}`);
+      toast.error('Error updating hostel information!');
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      hostelName: '',
-      area: '',
-      rooms: '',
-      sharing: '',
-      totalStudents: '',
-      price: '',
-      contact: '',
-      hotWater: '',
-      wifi: '',
-      ventilation: '',
-      drinkingWater: '',
-      vacancy: ''
-    });
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-5">
-      <h2 className="text-2xl font-bold mb-6 text-center">Upload Hostel Information</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Update Hostel Information</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Hostel Name</label>
           <input
             type="text"
-            name="hostelName"
-            value={formData.hostelName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-md"
             placeholder="Enter hostel name"
@@ -115,18 +73,19 @@ function UplodeHostel() {
             required
           >
             <option value="" disabled>Select area</option>
-            <option value="Near Kit college">Near Kit college</option>
-            <option value="ST colony">ST colony</option>
-            <option value="Near Main Gate">Near Main Gate</option>
-            <option value="Bharati Vidyapeeth">Bharati Vidyapeeth</option>
+            <option value="Area 1">Near Kit college.</option>
+            <option value="Area 2">ST colony.</option>
+            <option value="Area 3">Near Main Gate</option>
+            <option value="Area 4">Bharati Vidyapeeth</option>
           </select>
         </div>
+
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Room</label>
           <input
             type="text"
-            name="rooms"
-            value={formData.rooms}
+            name="room"
+            value={formData.room}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-md"
             placeholder="Enter room"
@@ -169,34 +128,9 @@ function UplodeHostel() {
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Vacancy</label>
-          <select
-            name="vacancy"
-            value={formData.vacancy}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          >
-            <option value="" disabled>Select vacancy</option>
-            <option value="fill">Fill</option>
-            <option value="vacant">Vacant</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Contact</label>
-          <input
-            type="number"
-            name="contact"
-            value={formData.contact}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="Enter contact number"
-            required
-          />
-        </div>
+
         <h3 className="text-lg font-bold mt-6 mb-4">Features</h3>
-        <div className='grid grid-cols-2'>
+        <div className="grid grid-cols-2">
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">Hot Water</label>
             <div className="flex space-x-4">
@@ -306,13 +240,13 @@ function UplodeHostel() {
             </div>
           </div>
         </div>
-        {/* Other fields remain unchanged */}
+
         <div className="mt-6 text-center">
           <button
             type="submit"
             className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 transition duration-200"
           >
-            Submit
+            Update
           </button>
         </div>
       </form>
@@ -320,4 +254,4 @@ function UplodeHostel() {
   );
 }
 
-export default UplodeHostel;
+export default UpdateHostel;
