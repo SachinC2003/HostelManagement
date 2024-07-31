@@ -4,6 +4,7 @@ import { FaUser, FaUserShield, FaExchangeAlt } from 'react-icons/fa';
 import hostel from "../assets/hostel.png"
 import logo from "../assets/logo.png"
 import Footer from '../Components/Footer';
+import Intro from "./Intro"
 
 const LandingPage = () => {
   return (
@@ -79,5 +80,18 @@ const LandingPage = () => {
     </div>
   );
 }
-
-export default LandingPage;
+function Demo()
+{
+   const [showIntro, setShowIntro] = React.useState(true);
+   React.useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+ 
+  <div>
+      {showIntro ? <Intro /> : <LandingPage />}
+    </div>
+  )
+}
+export default Demo;
