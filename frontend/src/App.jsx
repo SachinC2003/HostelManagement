@@ -7,9 +7,11 @@ import axios from 'axios';
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
-import { userAtom } from "./Store/userAtom"
+import Home from "./Pages/Home";
+import Navbar from "../src/Components/Navbar";
+import { userAtom } from "./Store/userAtom";
 import { TbTruckLoading } from "react-icons/tb";
-import UplodeHostel from "./Pages/UplodeHostel"
+import UplodeHostel from "./Pages/UplodeHostel";
 import UpdateHostel from "./Pages/UpdateHostel";
 
 function AppContent() {
@@ -58,11 +60,14 @@ function AppContent() {
   
 
   if (isLoading) {
-    return (<div  className="bg-gray-600 overflow-hidden">
+    return (
+      <div className="bg-gray-600 overflow-hidden">
         <div className="flex justify-center">
-        <h1 className="text-black text-5xl font-bold" >OFFLINE</h1>
-      </div><TbTruckLoading className="flex w-screen h-screen -mt-10" />
-    </div>);
+          <h1 className="text-black text-5xl font-bold">OFFLINE</h1>
+        </div>
+        <TbTruckLoading className="flex w-screen h-screen -mt-10" />
+      </div>
+    );
   }
 
   return (

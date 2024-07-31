@@ -1,50 +1,57 @@
 // src/components/LandingPage.jsx
 import React from 'react';
 import { FaUser, FaUserShield, FaExchangeAlt } from 'react-icons/fa';
-// import heroImage from '../assets/hero-image.jpg'; // Make sure to add an image to this path
+import hostel from "../assets/hostel.png"
+import logo from "../assets/logo.png"
+import Footer from '../Components/Footer';
+import Intro from "./Intro"
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to Our Website</h1>
-        </div>
+    <div className="min-h-screen  custom-scrollbar">
+      <header className="">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex">
+          <div className='absolute left-2 top-1 lg:-mt-12 -mt-1'>
+            <img src={logo} alt="Logo" className='lg:w-64 lg:h-64 w-28 h-28'/>
+          </div>
+          <div className='absolute right-0 top-8'>
+            <div className='flex justify-between p-4 rounded -mt-3'>
+              <button className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer'>Register</button>
+              <button className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer ml-4'>Sign up</button>
+            </div>
+            </div>
+            </div>
+    
       </header>
       
       <main>
-        <div className="bg-white">
+        <div className="mt-8">
           <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 lg:flex lg:items-center lg:justify-between">
-            <div className="lg:w-1/2">
-              <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                <span className="block">Beautiful and Functional</span>
-                <span className="block text-indigo-600">Web Designs</span>
+            <div className="lg:w-1/2 w- ">
+              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                <span className="block">The Home</span>
+                <span className="block text-indigo-600"><span className='text-yellow-500'>C</span>ampus <span className='text-yellow-500'>C</span>omfort</span>
               </h2>
-              <p className="mt-4 text-lg leading-6 text-gray-500">
-                Discover how our solutions can transform your online presence.
+              <p className="mt-4 text-xl leading-6 text-gray-500">
+                Find your Home away from Home
               </p>
               <div className="mt-8 flex">
                 <div className="inline-flex rounded-md shadow">
-                  <a href="#" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                  <button href="#" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                     Get started
-                  </a>
-                </div>
-                <div className="ml-3 inline-flex">
-                  <a href="#" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50">
-                    Learn more
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
-            <div className="mt-8 lg:mt-0 lg:w-1/2">
-              <img className="w-full h-full object-cover" src="https://img-cdn.pixlr.com/image-generator/history/65bb506dcb310754719cf81f/ede935de-1138-4f66-8ed7-44bd16efc709/medium.webp" alt="Hero" />
+            <div className="w-full lg:mt-0 lg:w-1/2">
+              <img className="w-full h-full object-cover rounded" src={hostel} alt="Hero" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 py-12">
+        <div className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 text-center">
               How Our System Works
             </h2>
             <div className="mt-10">
@@ -69,8 +76,22 @@ const LandingPage = () => {
           </div>
         </div>
       </main>
+      <Footer/>
     </div>
   );
 }
-
-export default LandingPage;
+function Demo()
+{
+   const [showIntro, setShowIntro] = React.useState(true);
+   React.useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+ 
+  <div>
+      {showIntro ? <Intro /> : <LandingPage />}
+    </div>
+  )
+}
+export default Demo;
