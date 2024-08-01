@@ -2,35 +2,42 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Box from '../Components/Box';
 
-const Hostel = () => {
-  const [hostel, setHostel] = useState([]);
+const MyHostel = () => {
+  const [myhostel, setMyHostel] = useState([]);
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [selectedHostel, setSelectedHostel] = useState(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
-      hostels(storedToken);
+      myhostels(storedToken);
+    } else {
+      setError("No authentication token found. Please log in.");
+      setLoading(false);
     }
   }, []);
 
-  const hostels = async (token) => {
+  const myhostels = async (token) => {
     try {
-      const response = await axios.get('http://localhost:3000/api/v1/user/hostel', {
+      setLoading(true);
+      const response = await axios.get('http://localhost:3000/api/v1/owner/myhostel', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (Array.isArray(response.data.data)) {
-        setHostel(response.data.data);
+        setMyHostel(response.data.data);
         setError('');
       } else {
         console.error("Unexpected data format:", response.data);
         setError("Received unexpected data format from the server.");
       }
     } catch (error) {
-      console.error("Error fetching hostels:", error);
-      setError("Failed to fetch hostels. Please try again later.");
+      console.error("Error fetching myhostels:", error);
+      setError("Failed to fetch myhostels. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -42,19 +49,24 @@ const Hostel = () => {
     setSelectedHostel(null);
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
   return (
     <div>
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 sm:mr-5 flex-wrap'>
-        {hostel.length > 0 ? (
-          hostel.map((item, index) => (
+        {myhostel.length > 0 ? (
+          myhostel.map((item, index) => (
             <Box key={index} data={item} onClick={() => handleBoxClick(item)} />
           ))
         ) : (
-          Array.from({ length: 8 }).map((_, index) => (
-            <Box key={index} data={{}} />
-          ))
+          <div>No hostels found.</div>
         )}
-        {error && <div className="error">{error}</div>}
       </div>
 
       {selectedHostel && (
@@ -63,6 +75,8 @@ const Hostel = () => {
     </div>
   );
 };
+
+// ... Popup component remains the same
 
 const Popup = ({ data, onClose }) => {
   const commonImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT26MP9f5YdlTfN-2pikGFAXSyfPfT7l-wdhA&s";
@@ -92,4 +106,4 @@ const Popup = ({ data, onClose }) => {
   );
 };
 
-export default Hostel;
+export default MyHostel;

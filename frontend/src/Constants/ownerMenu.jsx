@@ -5,7 +5,7 @@ import { CiLogout } from "react-icons/ci";
 const ownerMenu =[
     {
         name : "Home",
-        path : "/courses",
+        path : "/home",
         icon:<IoIosHome  size={35}/>
     },
     {
@@ -16,6 +16,11 @@ const ownerMenu =[
     {
         name : "Uplode-Mess",
         path : "/updatehostel",
+        icon:<GiMeal size={35}/>
+    },
+    {
+        name : "My-Hostel",
+        path : "/myhostel",
         icon:<GiMeal size={35}/>
     },
     {
