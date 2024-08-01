@@ -1,17 +1,12 @@
 import React from 'react';
-import Box from "../Components/Box";
-
+import homebg from "../assets/smhomebg.png"
 const Home = () => {
-  const boxes = Array.from({ length: 8 });
-
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 sm:mr-5 fle-wrap '>
-      {
-        boxes.map((_, index) => (
-          <Box key={index} />
-        ))
-      }
-    </div>
+    <div className='-mt-20'>
+    <div className="h-screen bg-cover bg-center " style={{ backgroundImage: `url(${homebg})` }}>
+      <h1 className="text-white text-3xl">Hello, World!</h1>
+      </div>
+      </div>
   );
 }
 
