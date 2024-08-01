@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import LandingPage from "../src/Pages/Landing"
+import LandingPage from "../src/Pages/Landing";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
@@ -84,7 +84,7 @@ function AppContent() {
         <Route path="/myhostel" element={<Layout><MyHostel /></Layout>} />
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
-        <Route path="/dashboard" element={<Layout><UplodeHostel /></Layout>} />
+        <Route path="/dashboard" element={<Layout><Home /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

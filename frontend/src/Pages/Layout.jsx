@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import logo from "../assets/logo.png"
 import { Navigate } from 'react-router-dom';
 import { userMenu, ownerMenu } from '../Constants/index';
 import { useRecoilValue, useSetRecoilState} from "recoil";
@@ -31,14 +32,18 @@ const Layout = ({ children }) => {
   return (
     <div className="h-screen flex ">
       {/* Sidebar */}
-      <div className={`transition-all duration-300 bg-sky-900 text-white h-screen ${sidebarVisible ? 'w-64' : 'w-0'} md:w-64`}>
+      <div className={`transition-all duration-300 bg-white text-white h-screen ${sidebarVisible ? 'w-64' : 'w-0'} md:w-64`}>
         <div className="p-4 border-b border-indigo-700 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">CampusComfort</h1>
+          <div className=' flex align-center justify-center'>
+          <img src={logo} alt="logo" className='w-3/4 h-3/4' />
+          </div>
           <button 
             onClick={() => setSidebarVisible(false)} 
             className="text-white text-2xl md:hidden"
           >
-            <RxCross1 />
+            <div className='text-black'>
+              <RxCross1 />
+              </div>
           </button>
         </div>
         <div className="menu mt-8">
@@ -46,7 +51,7 @@ const Layout = ({ children }) => {
             <Link 
               key={index} 
               to={menu.path} 
-              className="block px-6 py-4 mb-4 hover:bg-cyan-800 transition duration-150 ease-in-out"
+              className="block px-6 py-4 mb-4 hover:bg-cyan-800 transition duration-150 ease-in-out text-black"
               onClick={menu.name === 'Logout' ? handleLogout : undefined}
             >
               <div className="flex items-center">
@@ -82,7 +87,7 @@ const Layout = ({ children }) => {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto ">
           {children}
         </div>
       </div>
