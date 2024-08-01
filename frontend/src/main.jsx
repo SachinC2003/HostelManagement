@@ -7,7 +7,6 @@ import { RecoilRoot } from 'recoil'
 import Demo from "./Pages/Landing.jsx"
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* <App /> */}
-    <Demo/>
+    <App />
   </React.StrictMode>,
 )

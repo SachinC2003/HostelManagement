@@ -35,7 +35,7 @@ const Signup = () => {
         });
         console.log("User state set:", { userId: response.data.userId, role: response.data.role, gender:response.data.gender });
         toast.success("Signup successful!");
-        navigate("/dashboard");
+        navigate("/home");
       } else {
         console.error("Authentication successful but token is missing in the response");
         toast.error("Authentication successful, but there was an issue. Please try again.");
