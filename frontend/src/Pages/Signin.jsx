@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { userAtom } from '../Store/userAtom';
 import { Link } from 'react-router-dom';
+import signin from "../assets/signin.png"
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -44,12 +45,18 @@ const Signin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="w-full max-w-md p-8 bg-green-300 rounded shadow-md">
+    <div style={{ backgroundImage: `url(${signin})`, backgroundSize: 'cover', width: '100%', height: '100vh' }}>
+      <div>
+        <div className='absolute top-32 left-20'>
+          <h1 className='text-xl'>Welcome back!Please enter your details</h1>
+      </div>
+     
+      <div className="flex items-center  h-screen">
+      <div className="w-full max-w-md p-8 bg-gray-100 rounded shadow-md ml-20">
         <h2 className="mb-6 text-2xl font-bold text-center">Sign In</h2>
         <form onSubmit={handleSubmit}>
-          <Input placeholder="abc@gmail.com" label="Email" onChange={(e) => setEmail(e.target.value)} />
-          <Input placeholder="Password" label="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
+          <Input  label="Email" onChange={(e) => setEmail(e.target.value)} />
+          <Input  label="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
           <Dropdown 
             options={["User", "Owner"]}
             label="User Type"
@@ -66,8 +73,10 @@ const Signin = () => {
           <div className='text-md text-center'>
             Don't have an account? <Link to="/signup" className='text-slate-500'>Signup</Link>
           </div>
-        </form>
-      </div>
+            </form>
+             </div>
+        </div>
+        </div>
     </div>
   );
 };

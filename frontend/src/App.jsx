@@ -78,14 +78,12 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-<<<<<<< HEAD
+
         <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
-=======
-        <Route path="/home" element={<Layout><Home /></Layout>} />
->>>>>>> 10f59b69ea9fb1ec8cd83fec019db91bfd2c9838
+
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
-        <Route path="/dashboard" element={<Layout><Home /></Layout>} />
+        <Route path="/home" element={<Layout><Home/></Layout>} />
       </Routes>
     </BrowserRouter>
   );
@@ -95,7 +93,6 @@ function App() {
   return (
     <RecoilRoot>
       <AppContent />
-
       <ToastContainer />
     </RecoilRoot>
   );
