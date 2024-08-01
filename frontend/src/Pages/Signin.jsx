@@ -32,7 +32,7 @@ const Signin = () => {
         });
         console.log("User state set:", { userId: response.data.userId, role: response.data.role, gender: response.data.gender });
         toast.success("Signin successful!");
-        navigate("/dashboard");
+        navigate("/home");
       } else {
         console.error("Authentication successful but token is missing in the response");
         alert("Authentication successful, but there was an issue. Please try again.");
