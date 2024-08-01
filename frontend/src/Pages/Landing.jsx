@@ -5,8 +5,10 @@ import hostel from "../assets/hostel.png"
 import logo from "../assets/logo.png"
 import Footer from '../Components/Footer';
 import Intro from "./Intro"
+import { useNavigate } from "react-router-dom"
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen  custom-scrollbar">
       <header className="">
@@ -16,8 +18,8 @@ const LandingPage = () => {
           </div>
           <div className='absolute right-0 top-8'>
             <div className='flex justify-between p-4 rounded -mt-3'>
-              <button className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer'>Register</button>
-              <button className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer ml-4'>Sign up</button>
+              <button onClick={() => navigate('/signup')} className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer'>Register</button>
+              <button onClick={() => navigate('/signin')} className='px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-700 hover:cursor-pointer ml-4'>Login</button>
             </div>
             </div>
             </div>
@@ -37,7 +39,7 @@ const LandingPage = () => {
               </p>
               <div className="mt-8 flex">
                 <div className="inline-flex rounded-md shadow">
-                  <button href="#" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                  <button href="#" onClick={() => navigate('/signup')} className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                     Get started
                   </button>
                 </div>
@@ -84,7 +86,7 @@ function Demo()
 {
    const [showIntro, setShowIntro] = React.useState(true);
    React.useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 1500);
+    const timer = setTimeout(() => setShowIntro(false), 1000);
     return () => clearTimeout(timer);
   }, []);
   return (
