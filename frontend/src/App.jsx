@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import LandingPage from "../src/Pages/Landing"
+import LandingPage from "../src/Pages/Landing";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
+import Home from "../src/Pages/Home";
 import Hostel from "./Pages/Hostel";
+import MyHostel from "../src/Pages/MyHostel";
 import Navbar from "../src/Components/Navbar";
-import Home from "../src/Pages/Home"
 import { userAtom } from "./Store/userAtom";
 import { TbTruckLoading } from "react-icons/tb";
 import UplodeHostel from "./Pages/UplodeHostel";
@@ -79,7 +80,13 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
 
+
         <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
+
+
+        <Route path="/home" element={<Layout><Home /></Layout>} />
+        <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
+        <Route path="/myhostel" element={<Layout><MyHostel /></Layout>} />
 
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />

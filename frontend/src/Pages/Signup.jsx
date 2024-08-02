@@ -5,9 +5,9 @@ import { useSetRecoilState } from 'recoil';
 import { userAtom } from '../Store/userAtom';
 import { useNavigate } from 'react-router-dom';
 import Input from '../Components/Input';
-import signup from "../assets/signup.jpg"
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import Dropdown from '../Components/Dropdown';
+import signup from "../assets/signup.jpg";
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -27,14 +27,15 @@ const Signup = () => {
       const response = await axios.post(endpoint, { email, firstName, lastName, password, gender, role });
       console.log("signup req. response", response.data);
 
-      if (response.data) {
+      if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setUser({
-          userId: response.data.userId,
-          role: response.data.role,
-          gender: response.data.gender
+          userId: email, // Since we don't have userId from the server, we could use email as a temporary identifier
+          role: role, // We know the role from the form
+          gender: gender // We know the gender from the form
         });
-        console.log("User state set:", { userId: response.data.userId, role: response.data.role, gender: response.data.gender });
+
+        console.log("User state set:", { userId: email, role: role, gender: gender });
         toast.success("Signup successful!");
         navigate("/home");
       } else {
@@ -49,41 +50,41 @@ const Signup = () => {
 
   return (
     <div style={{ backgroundImage: `url(${signup})`, backgroundSize: 'cover', width: '100%', height: '100vh' }}>
-      <div className="flex justify-end h-screen items-center p-4 sm:p-8">
-        <form className="w-full max-w-lg p-6 rounded-lg shadow-md bg-white sm:mr-48" onSubmit={handleSignup}>
-          <h2 className="text-2xl sm:text-4xl font-bold mb-6 text-center">Create Account</h2>
-
-          <Input label="First Name" onChange={(e) => setFirstName(e.target.value)} />
-          <Input label="Last Name" onChange={(e) => setLastName(e.target.value)} />
-          <Input label="Email" onChange={(e) => setEmail(e.target.value)} />
-          <Input label="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
-
-          <div className='justify-evenly flex'>
+      <div className="flex items-center justify-end sm:mr-80 h-screen">
+        <div className="w-full max-w-md p-8 bg-gray-100 rounded shadow-md">
+          <h2 className="mb-6 text-2xl font-bold text-center">Sign Up</h2>
+          <form onSubmit={handleSignup}>
+            <Input placeholder="First Name" label="First Name" onChange={(e) => setFirstName(e.target.value)} />
+            <Input placeholder="Last Name" label="Last Name" onChange={(e) => setLastName(e.target.value)} />
+            <Input placeholder="abc@gmail.com" label="Email" onChange={(e) => setEmail(e.target.value)} />
+            <Input placeholder="Password" label="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
             
-            <Dropdown
-              options={["User", "Owner"]}
-              label="User Type"
-              onChange={(selected) => setRole(selected)}
-            />
-            <Dropdown
-              options={["Male", "Female", "Other"]}
-              label="Gender"
-              onChange={(selected) => setGender(selected)}
-            />
-          </div>
+            <div className='flex justify-around'>
+              <Dropdown 
+                options={["Male", "Female", "Other"]}
+                label="Gender"
+                onChange={(selected) => setGender(selected)}
+              />
+              <Dropdown 
+                options={["User", "Owner"]}
+                label="User Type"
+                onChange={(selected) => setRole(selected)}
+              />
+            </div>
 
-          <div className="flex items-center justify-center mt-8">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full sm:w-auto"
-              type="submit"
-            >
-              Sign Up
-            </button>
-          </div>
-          <div className='text-md text-center'>
-            Already have an account? <Link to="/signin" className='text-slate-500'>Signin</Link>
-          </div>
-        </form>
+            <div className="flex items-center justify-center mt-4">
+              <button
+                type="submit"
+                className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
+              >
+                Sign Up
+              </button>
+            </div>
+            <div className='text-md text-center'>
+              Already have an account? <Link to="/signin" className='text-slate-500'>Signin</Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -48,11 +48,11 @@ const Signin = () => {
     <div style={{ backgroundImage: `url(${signin})`, backgroundSize: 'cover', width: '100%', height: '100vh' }}>
       <div>
         <div className='absolute top-32 left-20'>
-          <h1 className='text-xl'>Welcome back!Please enter your details</h1>
+          <h1 className='text-xl'>Welcome back ! Please enter your details</h1>
       </div>
      
       <div className="flex items-center  h-screen">
-      <div className="w-full max-w-md p-8 bg-gray-100 rounded shadow-md ml-20">
+      <div className="w-full max-w-md p-8 bg-gray-100 rounded shadow-md sm:ml-20">
         <h2 className="mb-6 text-2xl font-bold text-center">Sign In</h2>
         <form onSubmit={handleSubmit}>
           <Input  label="Email" onChange={(e) => setEmail(e.target.value)} />
