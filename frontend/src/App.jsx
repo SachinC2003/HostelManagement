@@ -25,19 +25,19 @@ function AppContent() {
     const token = localStorage.getItem('token');
     console.log("Token from localStorage:", token); // Log the token
     if (token) {
-      axios.get('http://localhost:3000/api/vi/user/me', {
+      axios.get('http://localhost:3000/api/v1/user/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
       .then(response => {
         console.log("Full response from /user/me:", response.data);
-        if (!response.data.userId) {
+        if (!response.data._id) {
           console.error("userId is missing from the response");
           throw new Error("Invalid response from server");
         }
         setUser({ 
-          userId: response.data.userId, 
+          userId: response.data._id, 
           role: response.data.role || 'User', 
           gender: response.data.gender 
         });
@@ -49,7 +49,6 @@ function AppContent() {
       })
       .catch(error => {
         console.error('Error verifying token:', error.response ? error.response.data : error.message);
-        localStorage.removeItem('token');
         setUser({ userId: null, role: '', gender: '' }); // Reset user state on error
       })
       .finally(() => {
@@ -79,15 +78,9 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-
-
         <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
-
-
         <Route path="/home" element={<Layout><Home /></Layout>} />
-        <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
         <Route path="/myhostel" element={<Layout><MyHostel /></Layout>} />
-
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
         <Route path="/home" element={<Layout><Home/></Layout>} />

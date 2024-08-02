@@ -32,9 +32,9 @@ const Layout = ({ children }) => {
   return (
     <div className="h-screen flex ">
       {/* Sidebar */}
-      <div className={`transition-all duration-300 bg-white text-white h-screen ${sidebarVisible ? 'w-64' : 'w-0'} md:w-64`}>
-        <div className="p-4 border-b border-indigo-700 flex justify-between items-center">
-          <div className=' flex align-center justify-center'>
+      <div className={`transition-all duration-300 bg-white text-white h-screen ${sidebarVisible ? 'w-64' : 'w-0'} md:w-64 border-blacks`}>
+        <div className="ssborder-b border-indigo-700 flex justify-between items-center">
+          <div className=' flex align-center justify-center  -mt-8'>
           <img src={logo} alt="logo" className='w-3/4 h-3/4' />
           </div>
           <button 
@@ -45,13 +45,16 @@ const Layout = ({ children }) => {
               <RxCross1 />
               </div>
           </button>
+          
         </div>
+        <hr className="w-full border-t-2 border-gray-300 -mt-6" />
         <div className="menu mt-8">
+
           {menuToBeRendered.map((menu, index) => (
             <Link 
               key={index} 
               to={menu.path} 
-              className="block px-6 py-4 mb-4 hover:bg-cyan-800 transition duration-150 ease-in-out text-black"
+              className="block px-6 py-4 mb-4 hover:bg-blue-200 transition duration-150 ease-in-out text-black"
               onClick={menu.name === 'Logout' ? handleLogout : undefined}
             >
               <div className="flex items-center">
@@ -76,13 +79,13 @@ const Layout = ({ children }) => {
               <CgMenuLeftAlt size={40} />
             </i>
           )}
-          <div className="flex items-center space-x-4  flex-row-reverse">
+          <div className="flex items-center space-x-4 flex-row-reverse">
             <Link to="/notifications" className="relative text-indigo-800 hover:text-indigo-600 transition-colors duration-150">
               <i className="ri-notification-3-fill text-2xl"></i>
             </Link>
-            <div className='flex'>
-              <p className="username text-indigo-800 font-medium text-lg">{user.username || 'Username'}</p>
-              </div>
+            <div className="flex ml-auto">
+              <p className="text-indigo-800 font-medium text-lg pr-2 align-text-right">{user.role}</p>
+            </div>
           </div>
         </div>
 

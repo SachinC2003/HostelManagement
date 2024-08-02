@@ -15,7 +15,7 @@ const ownerMenu =[
     },
     {
         name : "Uplode-Mess",
-        path : "/updatehostel",
+        path : "/",
         icon:<GiMeal size={35}/>
     },
     {

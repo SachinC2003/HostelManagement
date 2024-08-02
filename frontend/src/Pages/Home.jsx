@@ -5,8 +5,8 @@ import React from "react"
 const Home=()=>{
   
   return (
-    <div>
-    hiiiii
+    <div className="z-10">
+             hiiiii
     </div>
   )
 
