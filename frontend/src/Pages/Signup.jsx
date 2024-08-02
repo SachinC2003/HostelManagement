@@ -27,12 +27,13 @@ const Signup = () => {
       const response = await axios.post(endpoint, { email, firstName, lastName, password, gender, role });
       console.log("signup req. response", response.data);
 
+      console.log(response.data.token);
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setUser({
-          userId: email, // Since we don't have userId from the server, we could use email as a temporary identifier
-          role: role, // We know the role from the form
-          gender: gender // We know the gender from the form
+          userId: response.data.userId, // Since we don't have userId from the server, we could use email as a temporary identifier
+          role: response.data.role, // We know the role from the form
+          gender: response.data.gender // We know the gender from the form
         });
 
         console.log("User state set:", { userId: email, role: role, gender: gender });

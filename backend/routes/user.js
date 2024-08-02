@@ -2,17 +2,25 @@ const express = require("express");
 const zod = require("zod");
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User, Hostel } = require("../db");
+const { User, Hostel, Owner } = require("../db");
 const jwt = require("jsonwebtoken");
 const authmiddleware = require('../middlewares/authmiddleware');
 
 router.get('/me', authmiddleware, async (req, res) => {
     try {
-      const user = await User.findById(req.userId).select('-password'); // Exclude password from the response
-      if (!user) {
+        console.log(req.headers.id)
+      const user = await User.findById(req.headers.id).select('-password'); 
+      const owner = await Owner.findById(req.headers.id).select('-password');
+      if (!user && !owner) {
         return res.status(404).send({ message: 'User not found' });
       }
-      res.status(200).send(user);
+      if(user)
+      {
+        res.status(200).send(user);
+      }else{
+        res.status(200).send(owner);
+      }
+      
     } catch (error) {
       res.status(500).send({ message: 'Server error' });
     }
@@ -54,6 +62,7 @@ router.post("/signup", async (req, res) => {
         const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
+            userId: newUser._id, role: newUser.role, gender: newUser.gender ,
             message: "User successfully created",
             token: token
         });

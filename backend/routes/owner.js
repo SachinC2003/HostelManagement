@@ -4,7 +4,8 @@ const router = express.Router()
 const bcrypt = require('bcrypt');
 const { User, Owner, Hostel } = require("../db")
 const jwt = require("jsonwebtoken")
-const { JWT_SECRET } = require("../config")
+const { JWT_SECRET } = require("../config");
+const authmiddleware = require("../middlewares/authmiddleware");
 
 const signupBody = zod.object({
     email: zod.string().email(),
@@ -42,6 +43,7 @@ router.post("/signup", async (req, res) => {
         const token = jwt.sign({ ownerId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
+            userId: newOwner._id, role: newOwner.role, gender: newOwner.gender,
             message: "Owner successfully created",
             token: token
         });
@@ -132,13 +134,13 @@ router.post("/uploderoom", async (req, res) => {
     }
 });
 
-router.get("/myhostel", async(req, res) => {
+router.get("/myhostel", authmiddleware, async(req, res) => {
     try {
-      const ownerId = req.owner._id;
+      const ownerId = req.headers.id;
       const hostels = await Hostel.find({owner: ownerId});
   
       if (!hostels.length) {
-        return res.status(404).json({ message: 'No hostels found for this owner.' });
+        return res.status(200).json({ message: 'No hostels found for this owner.' });
       }
   
       res.status(200).json({
