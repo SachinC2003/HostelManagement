@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Box from '../Components/Box';
-import { useNavigate } from 'react-router-dom';
 import UpdateHostelPopup from './UpdateHostel';
 
 const MyHostel = () => {
@@ -10,7 +9,7 @@ const MyHostel = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedHostel, setSelectedHostel] = useState(null);
-  const navigate = useNavigate(); 
+  const [update, setUpdate] = useState(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -52,6 +51,14 @@ const MyHostel = () => {
     setSelectedHostel(null);
   };
 
+  const handleUpdateClick = (hostelId) => {
+    setUpdate(hostelId);
+  };
+
+  const handleCloseUpdatePopup = () => {
+    setUpdate(null);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -73,15 +80,20 @@ const MyHostel = () => {
       </div>
 
       {selectedHostel && (
-        <Popup data={selectedHostel} onClose={handleClosePopup} />
+        <Popup data={selectedHostel} onClose={handleClosePopup} onUpdateClick={handleUpdateClick} />
       )}
+
+      {update && (
+        <UpdateHostelPopup hostelId={update} onClose={handleCloseUpdatePopup} />
+      )}
+
     </div>
   );
 };
 
 // ... Popup component remains the same
 
-const Popup = ({ data, onClose }) => {
+const Popup = ({ data, onClose, onUpdateClick }) => {
   const commonImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT26MP9f5YdlTfN-2pikGFAXSyfPfT7l-wdhA&s";
   const { hostelName, price, area, contact, drinkingWater, hotWater, owner, rooms, sharing, totalStudents, vacancy, ventilation, wifi } = data;
   
@@ -109,7 +121,7 @@ const Popup = ({ data, onClose }) => {
         </div>
         <div className="flex justify-center mt-4 space-x-7">
           <button onClick={onClose} className="px-4 py-2 bg-blue-500 text-white rounded">Close</button>
-          <button onClick={() => <UpdateHostelPopup />} className="px-4 py-2 bg-blue-500 text-white rounded">Update</button>
+          <button onClick={() => onUpdateClick(data._id)} className="px-4 py-2 bg-blue-500 text-white rounded">Update</button>
         </div>
       </div>
     </div>

@@ -157,32 +157,35 @@ router.get("/myhostel", authmiddleware, async(req, res) => {
     }
   });
 
-router.get("hostel/:id", async()=>{
+  router.get("/hostel/:id", async (req, res) => {
+    try {
+      const hostelId = req.params.id;
+      console.log("hostelid",hostelId);
+      const hostel = await Hostel.findById(hostelId);
+      if (!hostel) {
+        return res.status(404).json({ status: 404, message: 'Hostel with this Id not present' });
+      }
+  
+      res.status(200).json({ status: 200, data: hostel });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: 'Internal Server Error', error: error.message });
+    }
+  });
+  
+
+/*router.put("/update/:id", authmiddleware, async(req, res) =>{
     try{
         const hostelId = req.params.id;
-
-        const hostel = await Hostel.findById(hostelId);
-        if(!hostel){
-            res.status(404).json({status: 404, message: 'Hostel with this Id not present'});
-        }
-        
-        res.status(200).json({ status: 200, data: hostel });
-    } catch (error) {
-        res.status(500).json({ status: 500, message: 'Internal Server Error', error: error.message });
-    }
-});
-
-router.put("/update", async(req, res) =>{
-    try{
-        const {hostelId, ...updateData} = req.body;
+        const updatedData = req.body;
+        console.log("data come to update from frontend",updatedData)
         const hostel = await Hostel.findById(hostelId);
 
         if(!hostel){
             res.status(404).json({status: 404, message: 'Hostel with this Id not present'});
         }
 
-        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, ...updateData, {new : true});
-
+        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, updatedData, {new : true});
+        console.log("Updated Hostel:", updatedHostel);
         res.status(200).json({
             status: 200,
             message: 'Hostels info updated successfully.',
@@ -195,6 +198,63 @@ router.put("/update", async(req, res) =>{
             error: error.message
         });
     }
-})
+})*/
+router.put("/update/:id", authmiddleware, async (req, res) => {
+    try {
+        const hostelId = req.params.id;
+        let updatedData = req.body;
+
+        // Log the incoming data
+        console.log("Updated Data:", updatedData);
+
+        // Map frontend fields to schema fields if needed
+        updatedData = {
+            area: updatedData.area,
+            sharing: parseInt(updatedData.sharing, 10),
+            totalStudents: parseInt(updatedData.totalStudents, 10),
+            price: parseInt(updatedData.price, 10),
+            contact: parseInt(updatedData.contact, 10),
+            hotWater: updatedData.hotWater,
+            wifi: updatedData.wifi,
+            ventilation: updatedData.ventilation,
+            drinkingWater: updatedData.drinkingWater,
+            vacancy: updatedData.vacancy,
+            hostelName: updatedData.name, // Map name to hostelName
+            rooms: parseInt(updatedData.room, 10) // Assuming 'room' should be mapped to 'rooms'
+        };
+
+        // Log the converted data
+        console.log("Converted Data:", updatedData);
+
+        const hostel = await Hostel.findById(hostelId);
+
+        if (!hostel) {
+            return res.status(404).json({ status: 404, message: 'Hostel with this Id not present' });
+        }
+
+        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, updatedData, { new: true });
+
+        // Log the updated hostel
+        console.log("Updated Hostel:", updatedHostel);
+
+        if (!updatedHostel) {
+            return res.status(400).json({ status: 400, message: 'Failed to update hostel' });
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: 'Hostel info updated successfully.',
+            data: updatedHostel
+        });
+    } catch (error) {
+        console.error("Error updating hostel:", error);
+        res.status(500).json({
+            status: 500,
+            message: 'Internal Server Error',
+            error: error.message
+        });
+    }
+});
+
 
 module.exports = router;
