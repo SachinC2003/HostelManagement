@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../assets/logo.png"
 import { Navigate } from 'react-router-dom';
@@ -9,9 +9,14 @@ import { RxCross1 } from "react-icons/rx";
 import { CgMenuLeftAlt } from "react-icons/cg";
 const Layout = ({ children }) => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
   const user = useRecoilValue(userAtom);
   const setUser = useSetRecoilState(userAtom)
   const navigate = useNavigate(userAtom);
+
+  const token = localStorage.getItem("token"); 
+  const [notifications, setNotifications] = useState([]);
+
   console.log("User state in Layout:", user);
 
   const menuToBeRendered = user.role === 'Owner' ? ownerMenu
@@ -28,6 +33,27 @@ const Layout = ({ children }) => {
     console.log('User logged out');
   };
   
+  const fetchNotification = async() =>{
+    const userId = user.userId
+    try{
+      const response = await axios.get(`http://localhost:3000/api/v1/notification/${userId}`,{
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      setNotifications(response.data)
+      console.log("successfully fetch notifications")
+    }catch(error){
+      console.log("error to fetch notifications")
+    }
+  }
+
+  useEffect(()=>{
+      fetchNotification()
+  },[])
+
+  const toggleNotifications = () => {
+    setNotificationsVisible(!notificationsVisible);
+  };
 
   return (
     <div className="h-screen flex ">
@@ -55,7 +81,12 @@ const Layout = ({ children }) => {
               key={index} 
               to={menu.path} 
               className="block px-6 py-4 mb-4 hover:bg-blue-200 transition duration-150 ease-in-out text-black"
-              onClick={menu.name === 'Logout' ? handleLogout : undefined}
+              onClick={() => {
+                if (menu.name === 'Logout') {
+                  handleLogout();
+                }
+                setSidebarVisible(false);
+              }}
             >
               <div className="flex items-center">
                 <span>   {menu.icon} </span>
@@ -80,14 +111,32 @@ const Layout = ({ children }) => {
             </i>
           )}
           <div className="flex items-center space-x-4 flex-row-reverse">
-            <Link to="/notifications" className="relative text-indigo-800 hover:text-indigo-600 transition-colors duration-150">
-              <i className="ri-notification-3-fill text-2xl"></i>
-            </Link>
+            <button className='bg-slate-400' onClick={toggleNotifications}>
+              Notifications
+            </button>
             <div className="flex ml-auto">
               <p className="text-indigo-800 font-medium text-lg pr-2 align-text-right">{user.role}</p>
             </div>
           </div>
         </div>
+
+        {/* Notifications Popup */}
+        {notificationsVisible && (
+          <div className="fixed top-16 right-4 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
+            <h3 className="text-lg font-semibold mb-2">Notifications</h3>
+            {notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notification, index) => (
+                  <li key={index} className="border-b last:border-none py-2">
+                    {notification.message}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No notifications</p>
+            )}
+          </div>
+        )}
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto ">

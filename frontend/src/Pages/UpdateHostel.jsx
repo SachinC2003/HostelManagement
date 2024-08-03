@@ -74,12 +74,14 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
       console.log(response.data)
       toast.success('Hostel information updated successfully!');
       onClose();  // Close the popup after successful update
+      window.location.reload();
     } catch (error) {
       toast.error('Error updating hostel information!');
     }
   };
 
   return (
+    <div className='z-10'>
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6 text-center">Update Hostel Information</h2>
@@ -310,6 +312,7 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };
