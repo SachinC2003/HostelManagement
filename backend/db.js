@@ -47,12 +47,22 @@ const hostelSchema = new mongoose.Schema({
     vacancy : {type:String, enum:["fill", "vacant"], required: true}
 });
 
+const notificationSchema = new mongoose.Schema({
+    userId: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
+    message: { type: String, required: true},
+    isRead: {type: Boolean, default: false},
+    createdAt: {type: Date, default: Date.now}
+  });
+  
+
 const Owner = mongoose.model('owner', ownerSchema);
 const User = mongoose.model('user', userSchema);
 const Hostel = mongoose.model('hostel', hostelSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
 module.exports = {
     User,
     Owner,
-    Hostel
+    Hostel,
+    Notification
 };

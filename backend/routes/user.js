@@ -26,6 +26,27 @@ router.get('/me', authmiddleware, async (req, res) => {
     }
   });
 
+router.post("/createnotification", authmiddleware, async(req, res)=>{
+    const {userId, massage} = req.body
+    try{
+        const newNotification = await Notification.create({userId, massage});
+        await newNotification.save();
+        res.status(201).json(newNotification)
+    }catch(error){
+        res.status(500).json({ error: error.message });
+    }
+})
+
+router.get("/notification/:id", authmiddleware, async(req, res)=>{
+    const userId = req.params.id;
+    try{
+        const notifications = await Notification.find({userId})
+        res.status(201).json(notifications)
+    }catch(error){
+        res.status(500).json({error : error.massage})
+    }
+})
+
 const signupBody = zod.object({
     email: zod.string().email(),
     firstName: zod.string(),
