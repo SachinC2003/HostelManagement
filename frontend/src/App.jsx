@@ -10,12 +10,13 @@ import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
 import Home from "../src/Pages/Home";
 import Hostel from "./Pages/Hostel";
+import Mess from "./Pages/Mess"
 import MyHostel from "../src/Pages/MyHostel";
-import Navbar from "../src/Components/Navbar";
 import { userAtom } from "./Store/userAtom";
 import { TbTruckLoading } from "react-icons/tb";
 import UplodeHostel from "./Pages/UplodeHostel";
 import UpdateHostel from "./Pages/UpdateHostel";
+import UplodeMess from "./Pages/UplodeMess";
 
 function AppContent() {
   const setUser = useSetRecoilState(userAtom);
@@ -79,10 +80,12 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
+        <Route path="/mess" element={<Layout><Mess /></Layout>} />
         <Route path="/home" element={<Layout><Home /></Layout>} />
         <Route path="/myhostel" element={<Layout><MyHostel /></Layout>} />
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
+        <Route path="/uplodemess" element={<Layout><UplodeMess /></Layout>} />
         <Route path="/home" element={<Layout><Home/></Layout>} />
       </Routes>
     </BrowserRouter>

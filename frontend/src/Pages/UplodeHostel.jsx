@@ -6,6 +6,7 @@ import { userAtom } from '../Store/userAtom';
 
 function UplodeHostel() {
   const user = useRecoilValue(userAtom);
+  const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({
     hostelName: '',
     area: '',
@@ -36,7 +37,7 @@ function UplodeHostel() {
         : value,
     }));
   };
-
+/*
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Full user object:', user);
@@ -70,6 +71,42 @@ function UplodeHostel() {
       console.error('Response status:', error.response?.status);
       toast.error(`Error submitting form data: ${error.response?.data?.message || error.message}`);
     }
+  };*/
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const ownerId = user.userId || user._id || user.id;
+    if (!ownerId) {
+      toast.error('User ID is not available. Please try logging in again.');
+      return;
+    }
+    if (images.length < 2) {
+      toast.error('Please upload at least 2 images.');
+      return;
+    }
+    try {
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
+      });
+      formDataToSend.append('owner', ownerId);
+      images.forEach(image => {
+        formDataToSend.append('images', image);
+      });
+  
+      const response = await axios.post("http://localhost:3000/api/v1/owner/uploderoom", formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('Server response:', response.data);
+      toast.success('Hostel information submitted successfully!');
+      resetForm();
+    } catch (error) {
+      console.error('Error object:', error);
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
+      toast.error(`Error submitting form data: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   const resetForm = () => {
@@ -87,6 +124,7 @@ function UplodeHostel() {
       drinkingWater: '',
       vacancy: ''
     });
+    setImages([]);
   };
 
   return (
@@ -305,6 +343,18 @@ function UplodeHostel() {
               </label>
             </div>
           </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Hostel Images (at least 2)</label>
+          <input
+            type="file"
+            name="images"
+            onChange={(e) => setImages(Array.from(e.target.files))}
+            multiple
+            accept="image/*"
+            required
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
         </div>
         {/* Other fields remain unchanged */}
         <div className="mt-6 text-center">
