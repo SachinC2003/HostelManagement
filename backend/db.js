@@ -27,7 +27,6 @@ const ownerSchema = new mongoose.Schema({
     firstName: { type: String, required: true, trim: true, maxLength: 50 },
     lastName: { type: String, trim: true, maxLength: 50 },
     role: {type : String, enum: ["User", "Owner"]},
-    gender :{type : String, enum :["Male", "Female", "Other"]}
 });
 
 
@@ -44,7 +43,8 @@ const hostelSchema = new mongoose.Schema({
     wifi: { type: String, enum: ["yes", "no"], required: true },
     ventilation: { type: String, enum: ["yes", "no"], required: true },
     drinkingWater: { type: String, enum: ["yes", "no"], required: true },
-    vacancy : {type:String, enum:["fill", "vacant"], required: true}
+    vacancy : {type:String, enum:["fill", "vacant"], required: true},
+    gender :{type : String, enum :["Male", "Female", "Other"]}
 });
 
 const notificationSchema = new mongoose.Schema({
