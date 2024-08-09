@@ -49,11 +49,11 @@ router.get("/notification/:id", authmiddleware, async(req, res)=>{
 
 const signupBody = zod.object({
     email: zod.string().email(),
-    firstName: zod.string(),
-    lastName: zod.string(),
-    password: zod.string(),
-    role : zod.string(),
-    gender : zod.string()
+    firstName: zod.string().max(50, "First name cannot be longer than 50 characters"),
+    lastName: zod.string().max(50, "Last name cannot be longer than 50 characters"),
+    password: zod.string().min(6, "Password must be at least 6 characters"),
+    role: zod.string(),
+    gender: zod.string()
 });
 
 router.post("/signup", async (req, res) => {
@@ -83,7 +83,7 @@ router.post("/signup", async (req, res) => {
         const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
-            userId: newUser._id, role: newUser.role, gender: newUser.gender ,
+            userId: newUser._id, role: newUser.role, gender: newUser.gender,
             message: "User successfully created",
             token: token
         });
@@ -92,6 +92,7 @@ router.post("/signup", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
 
 
 const signinbody = zod.object({

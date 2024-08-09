@@ -27,16 +27,14 @@ const Signup = () => {
       const response = await axios.post(endpoint, { email, firstName, lastName, password, gender, role });
       console.log("signup req. response", response.data);
 
-      console.log(response.data.token);
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setUser({
-          userId: response.data.userId, // Since we don't have userId from the server, we could use email as a temporary identifier
-          role: response.data.role, // We know the role from the form
-          gender: response.data.gender // We know the gender from the form
+          userId: response.data.userId,
+          role: response.data.role,
+          gender: response.data.gender
         });
 
-        console.log("User state set:", { userId: email, role: role, gender: gender });
         toast.success("Signup successful!");
         navigate("/home");
       } else {
@@ -45,7 +43,13 @@ const Signup = () => {
       }
     } catch (error) {
       console.error('Authentication error:', error.response ? error.response.data : error);
-      toast.error(error.response?.data?.msg || "An error occurred. Please try again.");
+      if (error.response && error.response.data && error.response.data.errors) {
+        error.response.data.errors.forEach(err => {
+          toast.error(`${err.path[0]}: ${err.message}`);
+        });
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
