@@ -4,8 +4,14 @@ const router = express.Router()
 const bcrypt = require('bcrypt');
 const { User, Owner, Hostel } = require("../db")
 const jwt = require("jsonwebtoken")
-const { JWT_SECRET } = require("../config");
+const { JWT_SECRET } = require("../config/jwt");
 const authmiddleware = require("../middlewares/authmiddleware");
+const multer = require('multer');
+const cloudinary = require('../config/cloudinary');
+/*------------------------------------------------------------------*/
+const upload = multer({ storage: multer.memoryStorage() });
+/*------------------------------------------------------------------------------*/
+
 
 const signupBody = zod.object({
     email: zod.string().email(),
@@ -87,7 +93,9 @@ router.post("/signin", async (req, res) => {
     }
 });
 
-router.post("/uploderoom", async (req, res) => {
+
+
+/*router.post("/uploderoom", async (req, res) => {
     const { owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
     console.log("Received data:", req.body);
 
@@ -132,7 +140,79 @@ router.post("/uploderoom", async (req, res) => {
             details: error.errors ? Object.values(error.errors).map(err => err.message) : undefined
         });
     }
+});*/
+
+/*------------------------------------------------------------------------------------------------------------ */
+// In your routes/owner.js
+router.post("/uploderoom", upload.array('images', 5), async (req, res) => {
+    const { owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
+
+    // Check if at least 2 images were uploaded
+    if (!req.files || req.files.length < 2) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Bad Request: At least 2 image files are required.'
+        });
+    }
+
+    if (!owner || !hostelName || !area || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Bad Request: All fields are required.',
+            missingFields: Object.entries({ owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy })
+                .filter(([key, value]) => !value)
+                .map(([key]) => key)
+        });
+    }
+
+    try {
+        // Upload images to Cloudinary
+        const uploadPromises = req.files.map(file => {
+            return new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream({ folder: "hostels" }, (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url);
+                }).end(file.buffer);
+            });
+        });
+
+        const imageUrls = await Promise.all(uploadPromises);
+
+        const hostel = await Hostel.create({
+            owner,
+            hostelName,
+            area,
+            rooms,
+            sharing,
+            totalStudents,
+            price,
+            contact,
+            hotWater,
+            wifi,
+            ventilation,
+            drinkingWater,
+            vacancy,
+            imageUrls
+        });
+
+        res.status(201).json({
+            status: 201,
+            message: 'Hostel created successfully',
+            data: hostel
+        });
+    } catch (error) {
+        console.error("Error creating hostel:", error);
+        res.status(500).json({
+            status: 500,
+            message: 'Internal Server Error',
+            error: error.message,
+            details: error.errors ? Object.values(error.errors).map(err => err.message) : undefined
+        });
+    }
 });
+
+/*---------------------------------------------------------------------------------------------------------------*/
+
 
 router.get("/myhostel", authmiddleware, async(req, res) => {
     try {
@@ -173,32 +253,6 @@ router.get("/myhostel", authmiddleware, async(req, res) => {
   });
   
 
-/*router.put("/update/:id", authmiddleware, async(req, res) =>{
-    try{
-        const hostelId = req.params.id;
-        const updatedData = req.body;
-        console.log("data come to update from frontend",updatedData)
-        const hostel = await Hostel.findById(hostelId);
-
-        if(!hostel){
-            res.status(404).json({status: 404, message: 'Hostel with this Id not present'});
-        }
-
-        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, updatedData, {new : true});
-        console.log("Updated Hostel:", updatedHostel);
-        res.status(200).json({
-            status: 200,
-            message: 'Hostels info updated successfully.',
-            data: updatedHostel
-        });
-    }catch(error){
-        res.status(500).json({
-            status: 500,
-            message: 'Internal Server Error',
-            error: error.message
-        });
-    }
-})*/
 router.put("/update/:id", authmiddleware, async (req, res) => {
     try {
         const hostelId = req.params.id;

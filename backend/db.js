@@ -44,7 +44,8 @@ const hostelSchema = new mongoose.Schema({
     wifi: { type: String, enum: ["yes", "no"], required: true },
     ventilation: { type: String, enum: ["yes", "no"], required: true },
     drinkingWater: { type: String, enum: ["yes", "no"], required: true },
-    vacancy : {type:String, enum:["fill", "vacant"], required: true}
+    vacancy : {type:String, enum:["fill", "vacant"], required: true},
+    imageUrls: [String],
 });
 
 const notificationSchema = new mongoose.Schema({
