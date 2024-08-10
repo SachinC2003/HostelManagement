@@ -6,23 +6,28 @@ const Box = ({ data = {}, onClick }) => {
 
   console.log('Box Image URL:', imageUrl); // Check the image URL
 
-  return (
-    <div className="cursor-pointer grid p-5 pr-7" onClick={onClick}>
-      <div className='bg-blue-200 p-5 rounded-lg'>
-        <div className="rounded-xl overflow-hidden">
-          <div>
-            <img src={imageUrl} alt="Hostel" />
-          </div>
+return (
+    <div className="cursor-pointer grid p-5" onClick={onClick}>
+    <div className='bg-blue-200 p-5 rounded-lg flex justify-center'>
+      <div>
+        <div className="rounded-xl overflow-hidden w-64 h-64">
+          <img 
+            src={imageUrl} 
+            alt="Hostel" 
+            className="w-full h-full object-cover"
+          />
         </div>
         <div className="pl-2">
           <div className="text-white-800 text-xl font-medium pb-2 pt-2">
             {name || "No Name"}
           </div>
           <div className="text-black-400 text-md font-normal pb-1">
-            {price !== undefined ? `${price}` : "No Price"}{" Rs. per student"}
+            {price !== undefined ? `${price} Rs. per student` : "No Price"}
           </div>
-        </div>
       </div>
+      </div>
+    </div>
+    
     </div>
   );
 };

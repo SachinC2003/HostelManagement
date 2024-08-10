@@ -11,7 +11,7 @@ const Hostel = () => {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      setToken(storedToken);
+      setToken(storedToken); 
       hostels(storedToken);
     }
   }, []);
