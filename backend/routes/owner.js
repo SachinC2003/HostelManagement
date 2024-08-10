@@ -256,32 +256,53 @@ router.get("/myhostel", authmiddleware, async(req, res) => {
   });
   
 
-router.put("/update/:id", authmiddleware, async (req, res) => {
+  router.put("/update/:id", authmiddleware, async (req, res) => {
     try {
         const hostelId = req.params.id;
         let updatedData = req.body;
 
-        // Log the incoming data
-        console.log("Updated Data:", updatedData);
+        console.log("Incoming Data:", updatedData);
 
-        // Map frontend fields to schema fields if needed
+        // Ensure all required fields are present
+        const requiredFields = ['area', 'sharing', 'totalStudents', 'price', 'contact', 'hotWater', 'wifi', 'ventilation', 'drinkingWater', 'vacancy', 'hostelName', 'rooms'];
+        const missingFields = requiredFields.filter(field => updatedData[field] === undefined);
+        
+        if (missingFields.length > 0) {
+            return res.status(400).json({ 
+                status: 400, 
+                message: `Missing required fields: ${missingFields.join(', ')}` 
+            });
+        }
+
+        // Convert and validate numeric fields
+        const numericFields = ['sharing', 'totalStudents', 'price', 'contact', 'rooms'];
+        numericFields.forEach(field => {
+            const value = parseInt(updatedData[field], 10);
+            if (isNaN(value)) {
+                throw new Error(`Invalid value for ${field}: ${updatedData[field]}`);
+            }
+            updatedData[field] = value;
+        });
+
+        // Map frontend fields to schema fields
         updatedData = {
             area: updatedData.area,
-            sharing: parseInt(updatedData.sharing, 10),
-            totalStudents: parseInt(updatedData.totalStudents, 10),
-            price: parseInt(updatedData.price, 10),
-            contact: parseInt(updatedData.contact, 10),
+            sharing: updatedData.sharing,
+            totalStudents: updatedData.totalStudents,
+            price: updatedData.price,
+            contact: updatedData.contact,
             hotWater: updatedData.hotWater,
             wifi: updatedData.wifi,
             ventilation: updatedData.ventilation,
             drinkingWater: updatedData.drinkingWater,
             vacancy: updatedData.vacancy,
-            hostelName: updatedData.name, // Map name to hostelName
-            rooms: parseInt(updatedData.room, 10) // Assuming 'room' should be mapped to 'rooms'
+            hostelName: updatedData.hostelName,
+            rooms: updatedData.rooms,
+            gender: updatedData.gender, // Assuming you want to update gender as well
+            address: updatedData.address // Assuming you want to update address as well
         };
 
-        // Log the converted data
-        console.log("Converted Data:", updatedData);
+        console.log("Processed Data:", updatedData);
 
         const hostel = await Hostel.findById(hostelId);
 
@@ -289,9 +310,8 @@ router.put("/update/:id", authmiddleware, async (req, res) => {
             return res.status(404).json({ status: 404, message: 'Hostel with this Id not present' });
         }
 
-        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, updatedData, { new: true });
+        const updatedHostel = await Hostel.findByIdAndUpdate(hostelId, updatedData, { new: true, runValidators: true });
 
-        // Log the updated hostel
         console.log("Updated Hostel:", updatedHostel);
 
         if (!updatedHostel) {
@@ -305,9 +325,9 @@ router.put("/update/:id", authmiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error("Error updating hostel:", error);
-        res.status(500).json({
-            status: 500,
-            message: 'Internal Server Error',
+        res.status(400).json({
+            status: 400,
+            message: 'Bad Request',
             error: error.message
         });
     }

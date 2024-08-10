@@ -4,17 +4,22 @@ import axios from 'axios';
 
 const UpdateHostelPopup = ({ hostelId, onClose }) => {
   const [token, setToken] = useState('');
+  const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({
     hostelName: '',
     area: '',
-    rooms: '',
-    sharing: '',
-    totalStudents: '',
-    price: '',
+    address: '',
+    gender: '',
+    contact: 0,
+    rooms: 0,
+    sharing: 0,
+    totalStudents: 0,
+    price: 0,
     hotWater: '',
     wifi: '',
     ventilation: '',
     drinkingWater: '',
+    vacancy: '',
   });
 
   useEffect(() => {
@@ -22,8 +27,7 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      setError("No authentication token found. Please log in.");
-      setLoading(false);
+      toast.error("No authentication token found. Please log in.");
     }
   }, []);
 
@@ -38,6 +42,8 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
         setFormData({
           hostelName: data.hostelName,
           area: data.area,
+          address: data.address,
+          gender: data.gender,
           rooms: data.rooms,
           sharing: data.sharing,
           totalStudents: data.totalStudents,
@@ -54,14 +60,18 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
       }
     };
 
-    fetchHostelData();
+    if (token) {
+      fetchHostelData();
+    }
   }, [hostelId, token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: ['contact', 'rooms', 'sharing', 'totalStudents', 'price'].includes(name)
+        ? parseInt(value, 10) || 0
+        : value,
     });
   };
 
@@ -71,12 +81,13 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
       const response = await axios.put(`http://localhost:3000/api/v1/owner/update/${hostelId}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log(response.data)
+      console.log(response.data);
       toast.success('Hostel information updated successfully!');
-      onClose();  // Close the popup after successful update
+      onClose();
       window.location.reload();
     } catch (error) {
-      toast.error('Error updating hostel information!');
+      console.error('Error updating hostel:', error.response?.data || error.message);
+      toast.error('Error updating hostel information: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -98,7 +109,7 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
               <label className="block text-gray-700 font-medium mb-2">Hostel Name</label>
               <input
                 type="text"
-                name="name"
+                name="hostelName"
                 value={formData.hostelName}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md"
@@ -116,28 +127,66 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
                 required
               >
                 <option value="" disabled>Select area</option>
-                <option value="Area 1">Near Kit college.</option>
-                <option value="Area 2">ST colony.</option>
-                <option value="Area 3">Near Main Gate</option>
-                <option value="Area 4">Bharati Vidyapeeth</option>
+                <option value="Near Kit college">Near Kit college</option>
+                <option value="ST colony">ST colony</option>
+                <option value="Near Main Gate">Near Main Gate</option>
+                <option value="Bharati Vidyapeeth">Bharati Vidyapeeth</option>
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Room</label>
+              <label className="block text-gray-700 font-medium mb-2">Address</label>
               <input
                 type="text"
-                name="room"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter address"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Gender</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+              >
+                <option value="" disabled>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Contact</label>
+              <input
+                type="number"
+                name="contact"
+                value={formData.contact}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter contact number"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Rooms</label>
+              <input
+                type="number"
+                name="rooms"
                 value={formData.rooms}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter room"
+                placeholder="Enter number of rooms"
                 required
               />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2">Sharing</label>
               <input
-                type="text"
+                type="number"
                 name="sharing"
                 value={formData.sharing}
                 onChange={handleChange}
@@ -183,18 +232,6 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
                 <option value="fill">Fill</option>
                 <option value="vacant">Vacant</option>
               </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Contact</label>
-              <input
-                type="number"
-                name="contact"
-                value={formData.contact}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter contact number"
-                required
-              />
             </div>
             <h3 className="text-lg font-bold mt-6 mb-4">Features</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -306,6 +343,18 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
                   </label>
                 </div>
               </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Upload Images (Minimum 2 images)</label>
+              <input
+                type="file"
+                name="images"
+                accept="image/*"
+                multiple
+                onChange={(e) => setImages([...e.target.files])}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                required
+              />
             </div>
             <div className="mt-6 text-center">
               <button

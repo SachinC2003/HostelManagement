@@ -91,17 +91,40 @@ const MyHostel = () => {
   );
 };
 
-// ... Popup component remains the same
-
 const Popup = ({ data, onClose, onUpdateClick }) => {
-  const commonImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT26MP9f5YdlTfN-2pikGFAXSyfPfT7l-wdhA&s";
-  const { hostelName, price, area,address, contact, drinkingWater, hotWater, owner, rooms, sharing, totalStudents, vacancy, ventilation, wifi } = data;
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { hostelName, price, area, address, contact, drinkingWater, hotWater, owner, rooms, sharing, totalStudents, vacancy, ventilation, wifi, imageUrls = [] } = data;
+  const imageUrl = imageUrls[currentImageIndex] || 'https://via.placeholder.com/150';
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + imageUrls.length) % imageUrls.length);
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg max-w-md w-full max-h-screen overflow-y-auto">
-        <div className="rounded-xl overflow-hidden mb-4">
-          <img src={commonImage} alt="Hostel" className="w-full h-48 object-cover" />
+        <div className="relative rounded-xl overflow-hidden mb-4">
+          <img src={imageUrl} alt="Hostel" className="w-full h-48 object-cover" />
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-r"
+              >
+                &lt;
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-l"
+              >
+                &gt;
+              </button>
+            </>
+          )}
         </div>
         <h2 className="text-xl font-bold mb-4">{hostelName}</h2>
         <div className="space-y-2">
