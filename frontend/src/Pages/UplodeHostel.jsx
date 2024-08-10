@@ -10,6 +10,8 @@ function UplodeHostel() {
   const [formData, setFormData] = useState({
     hostelName: '',
     area: '',
+    address:'',
+    gender: '',
     rooms: '',
     sharing: '',
     totalStudents: '',
@@ -37,41 +39,7 @@ function UplodeHostel() {
         : value,
     }));
   };
-/*
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Full user object:', user);
-    const ownerId = user.userId || user._id || user.id;  // Adjust based on actual structure
-    if (!ownerId) {
-      toast.error('User ID is not available. Please try logging in again.');
-      return;
-    }
-    try {
-      const dataToSubmit = {
-        ...formData,
-        owner: ownerId,
-        rooms: Number(formData.rooms),
-        sharing: Number(formData.sharing),
-        totalStudents: Number(formData.totalStudents),
-        price: Number(formData.price),
-        contact: Number(formData.contact)
-      };
-      console.log('Data being submitted:', dataToSubmit);
-      const response = await axios.post("http://localhost:3000/api/v1/owner/uploderoom", dataToSubmit, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Server response:', response.data);
-      toast.success('Hostel information submitted successfully!');
-      resetForm();  // Reset form after successful submission
-    } catch (error) {
-      console.error('Error object:', error);
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
-      toast.error(`Error submitting form data: ${error.response?.data?.message || error.message}`);
-    }
-  };*/
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const ownerId = user.userId || user._id || user.id;
@@ -113,6 +81,8 @@ function UplodeHostel() {
     setFormData({
       hostelName: '',
       area: '',
+      address:'',
+      gender: '',
       rooms: '',
       sharing: '',
       totalStudents: '',
@@ -157,6 +127,32 @@ function UplodeHostel() {
             <option value="ST colony">ST colony</option>
             <option value="Near Main Gate">Near Main Gate</option>
             <option value="Bharati Vidyapeeth">Bharati Vidyapeeth</option>
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Address</label>
+          <input
+            type="text"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="Enter full address"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Gender</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          >
+            <option value="" disabled>Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
           </select>
         </div>
         <div className="mb-4">
@@ -345,22 +341,21 @@ function UplodeHostel() {
           </div>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Hostel Images (at least 2)</label>
+          <label className="block text-gray-700 font-medium mb-2">Upload Images (Minimum 2 images)</label>
           <input
             type="file"
             name="images"
-            onChange={(e) => setImages(Array.from(e.target.files))}
-            multiple
             accept="image/*"
-            required
+            multiple
+            onChange={(e) => setImages([...e.target.files])}
             className="w-full p-2 border border-gray-300 rounded-md"
+            required
           />
         </div>
-        {/* Other fields remain unchanged */}
-        <div className="mt-6 text-center">
+        <div className="mb-4">
           <button
             type="submit"
-            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-500 transition duration-200"
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-200"
           >
             Submit
           </button>

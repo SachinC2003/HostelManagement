@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userAtom } from '../Store/userAtom';
 import { useNavigate } from 'react-router-dom';
 import Input from '../Components/Input';
@@ -19,22 +19,21 @@ const Signup = () => {
 
   const navigate = useNavigate();
   const setUser = useSetRecoilState(userAtom);
+  const user = useRecoilValue(userAtom);
 
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
       const endpoint = role === 'User' ? "http://localhost:3000/api/v1/user/signup" : "http://localhost:3000/api/v1/owner/signup";
       const response = await axios.post(endpoint, { email, firstName, lastName, password, gender, role });
-      console.log("signup req. response", response.data);
 
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setUser({
           userId: response.data.userId,
           role: response.data.role,
-          gender: response.data.gender
+          gender: gender
         });
-
         toast.success("Signup successful!");
         navigate("/home");
       } else {
@@ -59,22 +58,24 @@ const Signup = () => {
         <div className="w-full max-w-md p-8 bg-gray-100 rounded shadow-md">
           <h2 className="mb-6 text-2xl font-bold text-center">Sign Up</h2>
           <form onSubmit={handleSignup}>
-            <Input placeholder="First Name" label="First Name" onChange={(e) => setFirstName(e.target.value)} />
-            <Input placeholder="Last Name" label="Last Name" onChange={(e) => setLastName(e.target.value)} />
-            <Input placeholder="abc@gmail.com" label="Email" onChange={(e) => setEmail(e.target.value)} />
-            <Input placeholder="Password" label="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
+            <Input placeholder="First Name" label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Input placeholder="Last Name" label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <Input placeholder="abc@gmail.com" label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input placeholder="Password" label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             
             <div className='flex justify-around'>
-              <Dropdown 
-                options={["Male", "Female", "Other"]}
-                label="Gender"
-                onChange={(selected) => setGender(selected)}
-              />
               <Dropdown 
                 options={["User", "Owner"]}
                 label="User Type"
                 onChange={(selected) => setRole(selected)}
               />
+              {role === 'User' && (
+                <Dropdown 
+                  options={["Male", "Female", "Other"]}
+                  label="Gender"
+                  onChange={(selected) => setGender(selected)}
+                />
+              )}
             </div>
 
             <div className="flex items-center justify-center mt-4">

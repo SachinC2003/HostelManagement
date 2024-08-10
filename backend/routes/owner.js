@@ -44,15 +44,16 @@ router.post("/signup", async (req, res) => {
             ...req.body,
             password: hashedPassword
         });
-
+        console.log("New owner created:", newOwner);
         const ownerId = newOwner._id;
         const token = jwt.sign({ ownerId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
-            userId: newOwner._id, role: newOwner.role, gender: newOwner.gender,
+            userId: newOwner._id,
+            role: newOwner.role, // Ensure this line is present
             message: "Owner successfully created",
             token: token
-        });
+          });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error" });
@@ -145,7 +146,7 @@ router.post("/signin", async (req, res) => {
 /*------------------------------------------------------------------------------------------------------------ */
 // In your routes/owner.js
 router.post("/uploderoom", upload.array('images', 5), async (req, res) => {
-    const { owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
+    const { owner, hostelName, area,address, gender, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
 
     // Check if at least 2 images were uploaded
     if (!req.files || req.files.length < 2) {
@@ -155,11 +156,11 @@ router.post("/uploderoom", upload.array('images', 5), async (req, res) => {
         });
     }
 
-    if (!owner || !hostelName || !area || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
+    if (!owner || !hostelName || !area || !address|| !gender || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
         return res.status(400).json({
             status: 400,
             message: 'Bad Request: All fields are required.',
-            missingFields: Object.entries({ owner, hostelName, area, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy })
+            missingFields: Object.entries({ owner, hostelName, area, gender, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy })
                 .filter(([key, value]) => !value)
                 .map(([key]) => key)
         });
@@ -182,6 +183,8 @@ router.post("/uploderoom", upload.array('images', 5), async (req, res) => {
             owner,
             hostelName,
             area,
+            address,
+            gender,
             rooms,
             sharing,
             totalStudents,

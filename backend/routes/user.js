@@ -155,13 +155,38 @@ router.get("/dashboard", async (req, res) => {
     })
 });
 
-router.get('/hostel', async (req, res) => {
+router.get('/hostel', authmiddleware, async (req, res) => {
+    const id = req.headers.id;
+    const { price, sharing } = req.query;
+    console.log(price, sharing)
     try {
-        const hostels = await Hostel.find({});
-        
+        const user = await User.findById(id);
+        let hostels;
+
+        if (user) {
+            const query = { gender: user.gender };
+            if (price) {
+                query.price = price;
+            }
+            if (sharing) {
+                query.sharing = sharing;
+            }
+            hostels = await Hostel.find(query);
+        } else {
+            const owner = await Owner.findById(id);
+            if (owner) {
+                hostels = await Hostel.find(query);
+            } else {
+                return res.status(404).json({
+                    status: 404,
+                    message: 'User not found.'
+                });
+            }
+        }
+
         if (hostels.length === 0) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(201).json({
+                status: 201,
                 message: 'No hostels found.'
             });
         }
