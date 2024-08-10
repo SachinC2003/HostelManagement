@@ -30,6 +30,7 @@ const hostelSchema = new mongoose.Schema({
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },
     hostelName: { type: String, required: true },
     area: { type: String, enum: ['Near Kit college', 'ST colony', 'Near Main Gate', 'Bharati Vidyapeeth'], required: true },
+    address : {type: String, require: true},
     rooms: { type: Number, required: true },
     sharing: { type: Number, required: true },
     totalStudents: { type: Number, required: true },

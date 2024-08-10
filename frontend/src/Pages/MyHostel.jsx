@@ -95,7 +95,7 @@ const MyHostel = () => {
 
 const Popup = ({ data, onClose, onUpdateClick }) => {
   const commonImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT26MP9f5YdlTfN-2pikGFAXSyfPfT7l-wdhA&s";
-  const { hostelName, price, area, contact, drinkingWater, hotWater, owner, rooms, sharing, totalStudents, vacancy, ventilation, wifi } = data;
+  const { hostelName, price, area,address, contact, drinkingWater, hotWater, owner, rooms, sharing, totalStudents, vacancy, ventilation, wifi } = data;
   
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -107,6 +107,7 @@ const Popup = ({ data, onClose, onUpdateClick }) => {
         <div className="space-y-2">
           <p><strong>Price:</strong> {price}{" Rs per student"}</p>
           <p><strong>Area:</strong> {area}</p>
+          <p><strong>Address:</strong> {address}</p>
           <p><strong>Contact:</strong> {contact}</p>
           <p><strong>Rooms:</strong> {rooms}</p>
           <p><strong>Sharing:</strong> {sharing}</p>

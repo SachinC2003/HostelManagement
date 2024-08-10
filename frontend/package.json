@@ -15,7 +15,11 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "axios": "^1.7.2",
+<<<<<<< HEAD
     "cloudinary": "^1.41.3",
+=======
+    "cloudinary": "^1.21.0",
+>>>>>>> 32f42498f29f5ad20fb1aaf7686213ee8046e57f
     "jwt-decode": "^4.0.0",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
