@@ -60,9 +60,9 @@ const Layout = ({ children }) => {
     <div className="h-screen flex">
       {/* Sidebar */}
       <div className={`transition-all duration-300 bg-slate-200 text-white h-screen ${sidebarVisible ? 'w-64' : 'w-0'} md:w-64 border-blacks`}>
-        <div className="border-b border-indigo-700 flex justify-between items-center">
-          <div className='flex align-center justify-center -mt-8'>
-            <img src={logo} alt="logo" className='w-3/4 h-3/4' />
+        <div className=" flex justify-evenly items-end -mt-5">
+          <div className='flex justify-center -mt-8 border-b border-indigo-700'>
+            <img src={logo} alt="logo" className='w-3/4 h-3/4 mt-3' />
           </div>
           <button 
             onClick={() => setSidebarVisible(false)} 

@@ -5,7 +5,7 @@ const Intro = () => {
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShow(false), 500); // Change 3000 to the number of milliseconds you want the logo to show
+    const timer = setTimeout(() => setShow(false), 800); // Change 3000 to the number of milliseconds you want the logo to show
     return () => clearTimeout(timer);
   }, []);
 
