@@ -80,7 +80,7 @@ router.post("/signup", async (req, res) => {
         });
 
         const userId = newUser._id;
-        const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10h' });
 
         res.status(201).json({
             userId: newUser._id, role: newUser.role, gender: newUser.gender,
@@ -121,7 +121,7 @@ router.post("/signin", async (req, res) => {
             return res.status(400).json({ message: "Invalid Credentials" });
         }
 
-        const token = jwt.sign({ userId: findUser._id, role: findUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: findUser._id, role: findUser.role }, process.env.JWT_SECRET, { expiresIn: '10h' });
         res.json({ token, userId: findUser._id, role: findUser.role, gender: findUser.gender });
 
     } catch (error) {
