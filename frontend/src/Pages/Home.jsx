@@ -29,7 +29,7 @@ const Home = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           Experience the perfect blend of comfort,<br /> community, and adventure. Your journey begins at <br />
-          our hostel—where every stay is more than just a <br /> place to sleep.
+          our hostel where every stay is more than just a <br /> place to sleep.
         </motion.p>
       </motion.div>
       <motion.div
