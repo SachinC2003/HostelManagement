@@ -42,8 +42,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 text-center text-gray-500">
-          <p>&copy; 2024 MyWebsite. All rights reserved.</p>
-          <p>1234 Street Name, City, State, 12345</p>
+          <p>&copy; 2024 CampusComfort. All rights reserved.</p>
           <p>Email: contact@mywebsite.com | Phone: (123) 456-7890</p>
         </div>
       </div>

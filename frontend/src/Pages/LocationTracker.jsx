@@ -1,75 +1,46 @@
 import React, { useState } from 'react';
 
 const LocationTracker = () => {
-  const [location, setLocation] = useState({ lat: null, lon: null });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
 
   const getLocation = () => {
-    setLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
           });
-          setError(null);
-          setLoading(false);
         },
-        (err) => {
-          setError(err.message);
-          setLocation({ lat: null, lon: null });
-          setLoading(false);
+        (error) => {
+          console.error("Error getting location: ", error);
+          alert("Unable to retrieve your location");
         }
       );
     } else {
-      setError("Geolocation is not supported by this browser.");
-      setLoading(false);
+      alert("Geolocation is not supported by this browser.");
     }
-  };
-
-  const formatCoordinate = (coord, isLatitude) => {
-    const absolute = Math.abs(coord);
-    const degrees = Math.floor(absolute);
-    const minutes = Math.floor((absolute - degrees) * 60);
-    const seconds = ((absolute - degrees - minutes / 60) * 3600).toFixed(1);
-    
-    // Determine the direction based on latitude or longitude
-    const direction = isLatitude
-      ? coord >= 0
-        ? 'N'
-        : 'S'
-      : coord >= 0
-      ? 'E'
-      : 'W';
-
-    return `${degrees}°${minutes}'${seconds}"${direction}`;
   };
 
   const openInGoogleMaps = () => {
-    if (location.lat && location.lon) {
-      const url = `https://www.google.com/maps?q=${location.lat},${location.lon}`;
-      window.open(url, '_blank');
+    if (location.latitude && location.longitude) {
+      const googleMapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+      window.open(googleMapsUrl, '_blank');
+    } else {
+      alert("Location is not available. Please try again.");
     }
   };
 
-  const latitudeFormatted = location.lat ? formatCoordinate(location.lat, true) : '';
-  const longitudeFormatted = location.lon ? formatCoordinate(location.lon, false) : '';
-
   return (
     <div>
-      <button onClick={getLocation} disabled={loading}>
-        {loading ? 'Fetching Location...' : 'Get Current Location'}
-      </button>
-      {location.lat && location.lon && (
+      <button onClick={getLocation}>Get Current Location</button>
+      {location.latitude && location.longitude && (
         <div>
-          <p>Latitude: {latitudeFormatted}</p>
-          <p>Longitude: {longitudeFormatted}</p>
+          <p>Latitude: {location.latitude}</p>
+          <p>Longitude: {location.longitude}</p>
           <button onClick={openInGoogleMaps}>Open in Google Maps</button>
         </div>
       )}
-      {error && <p>Error: {error}</p>}
     </div>
   );
 };

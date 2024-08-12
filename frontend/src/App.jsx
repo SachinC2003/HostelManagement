@@ -10,13 +10,22 @@ import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
 import Home from "../src/Pages/Home";
 import Hostel from "./Pages/Hostel";
-import Mess from "./Pages/Mess"
+import Mess from "./Pages/Mess";
 import MyHostel from "../src/Pages/MyHostel";
+import Notfound from "../src/assets/Notfound.avif"
 import { userAtom } from "./Store/userAtom";
-import { TbTruckLoading } from "react-icons/tb";
 import UplodeHostel from "./Pages/UplodeHostel";
 import UpdateHostel from "./Pages/UpdateHostel";
 import UplodeMess from "./Pages/UplodeMess";
+
+function NotFound() {
+  return (
+    <div className="bg-white flex justify-center items-center">
+      <img src={Notfound} alt="Not Found " className=" w-screen h-screen" />
+      {/* Replace the src with your own image URL */}
+    </div>
+  );
+}
 
 function AppContent() {
   const setUser = useSetRecoilState(userAtom);
@@ -24,7 +33,7 @@ function AppContent() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log("Token from localStorage:", token); // Log the token
+    console.log("Token from localStorage:", token);
     if (token) {
       axios.get('http://localhost:3000/api/v1/user/me', {
         headers: {
@@ -61,14 +70,16 @@ function AppContent() {
     }
   }, [setUser]);
   
-
   if (isLoading) {
     return (
-      <div className="bg-gray-600 overflow-hidden">
+      <div className="bg-white overflow-hidden w-screen h-screen flex justify-center items-center ">
+       <div>
         <div className="flex justify-center">
-          <h1 className="text-black text-5xl font-bold">OFFLINE</h1>
+          </div>
+          <div className="flex items-center justify-center mt-10">
+            <img src="https://static.javatpoint.com/csspages/images/css-loader.gif" alt="" />
+          </div>
         </div>
-        <TbTruckLoading className="flex w-screen h-screen -mt-10" />
       </div>
     );
   }
@@ -86,7 +97,7 @@ function AppContent() {
         <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
         <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
         <Route path="/uplodemess" element={<Layout><UplodeMess /></Layout>} />
-        <Route path="/home" element={<Layout><Home/></Layout>} />
+        <Route path="*" element={<NotFound />} /> {/* Catch-all route for undefined paths */}
       </Routes>
     </BrowserRouter>
   );

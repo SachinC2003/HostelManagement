@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import hostelhomeimg from "../assets/hostehomeimg.png";
-import LocationTracker from "./LocationTracker";
 
 // URL of a sample animated GIF (you can replace this with any URL of your choice)
 
@@ -47,7 +46,6 @@ const Home = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         />
       </motion.div>
-      <LocationTracker/>
     </div>
   );
 };
