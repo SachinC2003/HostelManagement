@@ -130,51 +130,38 @@ router.post("/signin", async (req, res) => {
     }
 });
 
-router.get("/dashboard", async (req, res) => {
-    const filter = req.query.filter || "";
-
-    const owner = await Owner.find({
-        $or: [{
-            firstName: {
-                "$regex": filter
-            }
-        }, {
-            lastName: {
-                "$regex": filter
-            }
-        }]
-    })
-
-    res.json({
-        user: owner.map(owner => ({
-            email: owner.email,
-            firstName: owner.firstName,
-            lastName: owner.lastName,
-            _id: owner._id
-        }))
-    })
-});
 
 router.get('/hostel', authmiddleware, async (req, res) => {
     const id = req.headers.id;
     const { price, sharing } = req.query;
-    console.log(price, sharing)
+    console.log("Query Parameters:", { price, sharing });
+
+    let query = {};
+
     try {
         const user = await User.findById(id);
         let hostels;
 
         if (user) {
-            const query = { gender: user.gender };
+            query.gender = user.gender;
             if (price) {
-                query.price = price;
+                query.price = { $lte: Number(price) }; // Convert price to number
             }
             if (sharing) {
-                query.sharing = sharing;
+                query.sharing = { $lte: Number(sharing) }; // Convert sharing to number
             }
+            console.log("Constructed Query for User:", query);
             hostels = await Hostel.find(query);
         } else {
             const owner = await Owner.findById(id);
             if (owner) {
+                if (price) {
+                    query.price = { $lte: Number(price) }; // Convert price to number
+                }
+                if (sharing) {
+                    query.sharing = { $lte: Number(sharing) }; // Convert sharing to number
+                }
+                console.log("Constructed Query for Owner:", query);
                 hostels = await Hostel.find(query);
             } else {
                 return res.status(404).json({
@@ -197,6 +184,7 @@ router.get('/hostel', authmiddleware, async (req, res) => {
             data: hostels
         });
     } catch (error) {
+        console.error("Error:", error);
         res.status(500).json({
             status: 500,
             message: 'Internal Server Error',
@@ -204,6 +192,8 @@ router.get('/hostel', authmiddleware, async (req, res) => {
         });
     }
 });
+
+
 
 
 

@@ -28,7 +28,9 @@ const MyHostel = () => {
       const response = await axios.get('http://localhost:3000/api/v1/owner/myhostel', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (Array.isArray(response.data.data)) {
+      if (!response.data.data || response.data.data.length === 0) {
+        setError("No any hostels uploded by you.");
+      }else if (Array.isArray(response.data.data)) {
         setMyHostel(response.data.data);
         setError('');
       } else {
@@ -60,11 +62,25 @@ const MyHostel = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="bg-white overflow-hidden w-screen h-screen flex justify-center items-center ">
+       <div>
+        <div className="flex justify-center">
+          </div>
+          <div className="flex items-center justify-center mt-10">
+            <img src="https://static.javatpoint.com/csspages/images/css-loader.gif" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center font-bold text-2xl">{error}</div>
+      </div>
+    );
   }
 
   return (
@@ -133,7 +149,7 @@ const Popup = ({ data, onClose, onUpdateClick }) => {
           <p><strong>Address:</strong> {address}</p>
           <p><strong>Contact:</strong> {contact}</p>
           <p><strong>Rooms:</strong> {rooms}</p>
-          <p><strong>Sharing:</strong> {sharing}</p>
+          <p><strong>Sharing:</strong> {sharing} students per room</p>
           <p><strong>Total Students:</strong> {totalStudents}</p>
           <p><strong>Vacancy:</strong> {vacancy}</p>
           <div className="grid grid-cols-2 gap-4">

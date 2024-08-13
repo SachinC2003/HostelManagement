@@ -1,10 +1,13 @@
-import React, { useState, useCallback, useRef , useEffect} from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Webcam from 'react-webcam';
+import StarRatings from 'react-star-ratings';
 
 function UplodeHostel() {
-  const [token, setToken] = useState();
+  const [token, setToken] = useState(null);
+  const [feedback, setFeedback] = useState(false);
+  const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({
     hostelName: '',
@@ -57,13 +60,14 @@ function UplodeHostel() {
         formDataToSend.append('images', image, image.name || `image_${index}.jpg`);
       });
 
-      const response = await axios.post("http://localhost:3000/api/v1/owner/uploderoom", formDataToSend, {
+      await axios.post("http://localhost:3000/api/v1/owner/uploderoom", formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         }
       });
       toast.success('Hostel information submitted successfully!');
+      setFeedback(true);
       resetForm();
     } catch (error) {
       console.error('Error object:', error);
@@ -115,6 +119,24 @@ function UplodeHostel() {
     setImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
+  const handleRatingChange = (newRating) => {
+    setRating(newRating);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    try {
+      await axios.post('http://localhost:3000/api/v1/owner/feedback', { rating }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      toast.success('Feedback submitted successfully!');
+      setFeedback(false); // Close feedback form
+    } catch (error) {
+      toast.error(`Error submitting feedback: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-5">
       <h2 className="text-2xl font-bold mb-6 text-center">Upload Hostel Information</h2>
@@ -160,7 +182,7 @@ function UplodeHostel() {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Gender</label>
+          <label className="block text-gray-700 font-medium mb-2">Gender (Boy's / Girl's)</label>
           <select
             name="gender"
             value={formData.gender}
@@ -186,7 +208,7 @@ function UplodeHostel() {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Sharing</label>
+          <label className="block text-gray-700 font-medium mb-2">Sharing (students per room)</label>
           <input
             type="text"
             name="sharing"
@@ -210,7 +232,7 @@ function UplodeHostel() {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Price</label>
+          <label className="block text-gray-700 font-medium mb-2">Price (price per student)</label>
           <input
             type="number"
             name="price"
@@ -238,7 +260,7 @@ function UplodeHostel() {
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Contact</label>
           <input
-            type="number"
+            type="text"
             name="contact"
             value={formData.contact}
             onChange={handleChange}
@@ -359,20 +381,37 @@ function UplodeHostel() {
           </div>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Upload Images (Minimum 2)</label>
+          <label className="block text-gray-700 font-medium mb-2">Upload Images</label>
           <input
             type="file"
             accept="image/*"
             multiple
             onChange={handleFileChange}
             className="w-full p-2 border border-gray-300 rounded-md"
+            required
           />
+          <div className="mt-2">
+            {images.map((image, index) => (
+              <div key={index} className="relative inline-block mr-2">
+                <img src={URL.createObjectURL(image)} alt={`Preview ${index}`} className="w-32 h-32 object-cover rounded-md" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mb-4">
           <button
             type="button"
             onClick={() => setCameraOpen(true)}
-            className="mt-2 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
           >
-            Capture Image
+            Open Camera
           </button>
           {cameraOpen && (
             <div className="mt-4">
@@ -380,45 +419,24 @@ function UplodeHostel() {
                 audio={false}
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
-                width="100%"
+                className="w-full h-64"
               />
               <button
+                type="button"
                 onClick={capture}
                 className="mt-2 w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
               >
-                Capture
+                Capture Photo
               </button>
               <button
+                type="button"
                 onClick={() => setCameraOpen(false)}
-                className="mt-2 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
+                className="mt-2 w-full bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600"
               >
                 Close Camera
               </button>
             </div>
           )}
-          
-          {/* Display added images */}
-          <div className="mt-4">
-            <h4 className="text-lg font-medium mb-2">Added Images ({images.length})</h4>
-            <div className="flex flex-wrap gap-2">
-              {images.map((image, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`Uploaded ${index + 1}`}
-                    className="w-24 h-24 object-cover rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
         <button
           type="submit"
@@ -427,6 +445,26 @@ function UplodeHostel() {
           Submit
         </button>
       </form>
+      {feedback && (
+        <div className="mt-6 p-4 bg-gray-100 rounded-md shadow-md z-50">
+          <h3 className="text-lg font-bold mb-4">Please Rate Your Experience</h3>
+          <StarRatings
+            rating={rating}
+            starRatedColor="gold"
+            changeRating={handleRatingChange}
+            numberOfStars={5}
+            name='rating'
+            starDimension="30px"
+            starSpacing="5px"
+          />
+          <button
+            onClick={handleFeedbackSubmit}
+            className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+          >
+            Submit Feedback
+          </button>
+        </div>
+      )}
     </div>
   );
 }

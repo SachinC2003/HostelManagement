@@ -27,13 +27,12 @@ const Hostel = () => {
       setHostel([]); // Clear existing hostels before fetching new ones
       setError(''); // Clear existing error message
       const response = await axios.get('http://localhost:3000/api/v1/user/hostel', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, id: user._id },
         params: filters
       });
-      if (Array.isArray(response.data.data)) {
-        if (response.data.data.length === 0) {
-          setError('No hostels found.');
-        }
+      if (!response.data.data || response.data.data.length === 0) {
+        setError("No hostels available at the moment.");
+      } else if (Array.isArray(response.data.data)) {
         setHostel(response.data.data);
       } else {
         console.error("Unexpected data format:", response.data);
@@ -56,15 +55,33 @@ const Hostel = () => {
   const handleFilter = (e) => {
     e.preventDefault();
     setFilterPopup(false);
-    fetchHostels(token, { price, sharing });
+  
+    // Create filters object and add only valid filters
+    const filters = {};
+    if (price) filters.price = Number(price);
+    if (sharing) filters.sharing = Number(sharing);
+  
+    fetchHostels(token, filters);
+  
+    // Clear input values after applying filter
+    setPrice('');
+    setSharing('');
   };
+  
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center font-bold text-lg">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className='bg-white z-10'>
-      <div className='flex justify-content-end items-center'>
+      <div className='flex justify-end items-center'>
         <button
           onClick={() => setFilterPopup(true)}
-          className='px-4 py-2 bg-blue-500 text-white rounded'
+          className='px-4 py-2 mt-2 mr-2 w-35 text-xl bg-blue-500 text-white rounded'
         >
           Filter
         </button>
@@ -91,18 +108,18 @@ const Hostel = () => {
             <h2 className="text-xl font-bold mb-4 mr-1">Filter Hostels</h2>
             <form onSubmit={handleFilter}>
               <div className="mb-4">
-                <label className="block text-gray-700">Price</label>
+                <label className="block text-gray-700">Price (less than)</label>
                 <input
-                  type="text"
+                  type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Sharing</label>
+                <label className="block text-gray-700">Sharing (less than)</label>
                 <input
-                  type="text"
+                  type="number"
                   value={sharing}
                   onChange={(e) => setSharing(e.target.value)}
                   className="w-full px-3 py-2 border rounded"
@@ -171,19 +188,23 @@ const Popup = ({ data, onClose }) => {
           <p><strong>Area:</strong> {area}</p>
           <p><strong>Address:</strong> {address}</p>
           <p><strong>Contact:</strong> {contact}</p>
+          <p><strong>Drinking Water:</strong> {drinkingWater}</p>
+          <p><strong>Hot Water:</strong> {hotWater}</p>
+          <p><strong>Owner:</strong> {owner}</p>
           <p><strong>Rooms:</strong> {rooms}</p>
           <p><strong>Sharing:</strong> {sharing}</p>
           <p><strong>Total Students:</strong> {totalStudents}</p>
           <p><strong>Vacancy:</strong> {vacancy}</p>
-          <div className="grid grid-cols-2 gap-4">
-            <p><strong>Ventilation:</strong> {ventilation}</p>
-            <p><strong>Wi-Fi:</strong> {wifi}</p>
-            <p><strong>Hot Water:</strong> {hotWater}</p>
-            <p><strong>Drinking Water:</strong> {drinkingWater}</p>
-          </div>
+          <p><strong>Ventilation:</strong> {ventilation}</p>
+          <p><strong>Wi-Fi:</strong> {wifi}</p>
         </div>
-        <div className="flex justify-center mt-4">
-          <button onClick={onClose} className="px-4 py-2 bg-blue-500 text-white rounded">Close</button>
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-500 text-white rounded"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

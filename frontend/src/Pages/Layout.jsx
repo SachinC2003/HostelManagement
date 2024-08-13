@@ -4,6 +4,7 @@ import logo from "../assets/logo.png"
 import { userMenu, ownerMenu } from '../Constants/index';
 import { useRecoilValue, useSetRecoilState} from "recoil";
 import { userAtom } from "../Store/userAtom";
+import { IoIosArrowBack } from "react-icons/io";
 import { RxCross1 } from "react-icons/rx";
 import { CgMenuLeftAlt } from "react-icons/cg";
 import axios from 'axios';
@@ -63,15 +64,16 @@ const Layout = ({ children }) => {
         <div className=" flex justify-evenly items-end -mt-5">
           <div className='flex justify-center -mt-8 border-b border-indigo-700'>
             <img src={logo} alt="logo" className='w-3/4 h-3/4 mt-3' />
-          </div>
-          <button 
+            <button 
             onClick={() => setSidebarVisible(false)} 
             className="text-white text-2xl md:hidden"
           >
-            <div className='text-black'>
-              <RxCross1 />
+            <div className='text-black '>
+            <IoIosArrowBack size={40} className='mt-20' />
             </div>
           </button>
+          </div>
+          
         </div>
         <div className="menu mt-1">
           {menuToBeRendered.map((menu, index) => (
@@ -110,7 +112,7 @@ const Layout = ({ children }) => {
               </i>
             )}
             <h2 className="text-xl font-bold text-gray-800 py-2 border-b-2 border-indigo-500 inline-block">
-              {menuToBeRendered.find(item => item.path === location.pathname)?.name || 'Dashboard'}
+              {menuToBeRendered.find(item => item.path === location.pathname)?.name || ' '}
             </h2>
           </div>
           

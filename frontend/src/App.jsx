@@ -10,6 +10,7 @@ import Signin from "./Pages/Signin";
 import Layout from "./Pages/Layout";
 import Home from "../src/Pages/Home";
 import Hostel from "./Pages/Hostel";
+import cssloader from "./assets/cssloader.gif"
 import Mess from "./Pages/Mess";
 import MyHostel from "../src/Pages/MyHostel";
 import Notfound from "../src/assets/Notfound.avif"
@@ -17,6 +18,7 @@ import { userAtom } from "./Store/userAtom";
 import UplodeHostel from "./Pages/UplodeHostel";
 import UpdateHostel from "./Pages/UpdateHostel";
 import UplodeMess from "./Pages/UplodeMess";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function NotFound() {
   return (
@@ -77,7 +79,7 @@ function AppContent() {
         <div className="flex justify-center">
           </div>
           <div className="flex items-center justify-center mt-10">
-            <img src="https://static.javatpoint.com/csspages/images/css-loader.gif" alt="" />
+            <img src={cssloader} />
           </div>
         </div>
       </div>
@@ -90,13 +92,62 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/hostel" element={<Layout><Hostel /></Layout>} />
-        <Route path="/mess" element={<Layout><Mess /></Layout>} />
-        <Route path="/home" element={<Layout><Home /></Layout>} />
-        <Route path="/myhostel" element={<Layout><MyHostel /></Layout>} />
-        <Route path="/uplodehostel" element={<Layout><UplodeHostel /></Layout>} />
-        <Route path="/updatehostel" element={<Layout><UpdateHostel /></Layout>} />
-        <Route path="/uplodemess" element={<Layout><UplodeMess /></Layout>} />
+        <Route 
+          path="/hostel" 
+          element={
+            <ProtectedRoute roles={['Owner', 'User']}>
+              <Layout><Hostel /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/mess" 
+          element={
+            <ProtectedRoute roles={['Owner', 'User']}>
+              <Layout><Mess /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/home" 
+          element={
+            <ProtectedRoute roles={['Owner', 'User']}>
+              <Layout><Home /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/myhostel" 
+          element={
+            <ProtectedRoute roles={['Owner']}>
+              <Layout><MyHostel /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/uplodehostel" 
+          element={
+            <ProtectedRoute roles={['Owner']}>
+              <Layout><UplodeHostel /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/updatehostel" 
+          element={
+            <ProtectedRoute roles={['Owner']}>
+              <Layout><UpdateHostel /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/uplodemess" 
+          element={
+            <ProtectedRoute roles={['Owner']}>
+              <Layout><UplodeMess /></Layout>
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<NotFound />} /> {/* Catch-all route for undefined paths */}
       </Routes>
     </BrowserRouter>

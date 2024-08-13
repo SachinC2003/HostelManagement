@@ -52,6 +52,20 @@ const notificationSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+const feedbackSchema = new mongoose.Schema({
+    averageRating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: 0
+    },
+    totalRatings: {
+      type: Number,
+      default: 0
+    }
+  });
+  
+const Feedback = mongoose.model('Feedback', feedbackSchema);  
 const Owner = mongoose.model('owner', ownerSchema);
 const User = mongoose.model('user', userSchema);
 const Hostel = mongoose.model('hostel', hostelSchema);
@@ -61,5 +75,6 @@ module.exports = {
     User,
     Owner,
     Hostel,
+    Feedback,
     Notification
 };

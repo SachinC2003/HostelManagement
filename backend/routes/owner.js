@@ -2,7 +2,7 @@ const express = require("express")
 const zod = require("zod")
 const router = express.Router()
 const bcrypt = require('bcrypt');
-const { User, Owner, Hostel } = require("../db")
+const { User, Owner, Hostel, Feedback} = require("../db")
 const jwt = require("jsonwebtoken")
 const { JWT_SECRET } = require("../config/jwt");
 const authmiddleware = require("../middlewares/authmiddleware");
@@ -94,6 +94,36 @@ router.post("/signin", async (req, res) => {
     }
 });
 
+router.post('/feedback', async (req, res) => {
+    try {
+      const { rating } = req.body;
+      if (rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+      }
+  
+      const feedback = await Feedback.findOne({});
+      if (feedback) {
+        const totalRatings = feedback.totalRatings + 1;
+        const averageRating = ((feedback.averageRating * feedback.totalRatings) + rating) / totalRatings;
+  
+        feedback.averageRating = averageRating;
+        feedback.totalRatings = totalRatings;
+        await feedback.save();
+  
+        return res.status(200).json({ message: 'Feedback updated successfully' });
+      } else {
+        // If no feedback document exists, create one
+        const newFeedback = new Feedback({
+          averageRating: rating,
+          totalRatings: 1
+        });
+        await newFeedback.save();
+        return res.status(200).json({ message: 'Feedback created successfully' });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  });
 
 // In your routes/owner.js
 router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req, res) => {
@@ -207,10 +237,45 @@ router.get("/myhostel", authmiddleware, async(req, res) => {
   });
   
 
-  router.put("/update/:id", authmiddleware, async (req, res) => {
+  router.put("/update/:id", authmiddleware, upload.array('images'), async (req, res) => {
     try {
         const hostelId = req.params.id;
-        let updatedData = req.body;
+        console.log("Updating hostel with ID:", hostelId);
+
+        console.log("req.body:", req.body);
+        console.log("req.files:", req.files);
+
+        let formData;
+        try {
+            formData = req.body.formData ? JSON.parse(req.body.formData) : req.body;
+        } catch (error) {
+            console.error("Error parsing formData:", error);
+            formData = req.body;
+        }
+
+        console.log("Parsed formData:", formData);
+
+        const files = req.files || [];
+        
+        // Upload new images to Cloudinary
+        const uploadPromises = files.map(file => {
+            return new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream({ folder: "hostels" }, (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url);
+                }).end(file.buffer);
+            });
+        });
+
+        const newImageUrls = await Promise.all(uploadPromises);
+        console.log("New image URLs:", newImageUrls);
+
+        // Combine existing and new image URLs
+        const existingImageUrls = Array.isArray(formData.imageUrls) ? formData.imageUrls : 
+                                  (formData.imageUrls ? formData.imageUrls.split(',') : []);
+        const imageUrls = [...existingImageUrls, ...newImageUrls].slice(0, 5); // Limit to 5 images
+
+        let updatedData = {...formData, imageUrls};
 
         console.log("Incoming Data:", updatedData);
 
@@ -249,8 +314,9 @@ router.get("/myhostel", authmiddleware, async(req, res) => {
             vacancy: updatedData.vacancy,
             hostelName: updatedData.hostelName,
             rooms: updatedData.rooms,
-            gender: updatedData.gender, // Assuming you want to update gender as well
-            address: updatedData.address // Assuming you want to update address as well
+            gender: updatedData.gender,
+            address: updatedData.address,
+            imageUrls: updatedData.imageUrls
         };
 
         console.log("Processed Data:", updatedData);

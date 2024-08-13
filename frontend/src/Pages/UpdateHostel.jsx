@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import Webcam from 'react-webcam';
 
 const UpdateHostelPopup = ({ hostelId, onClose }) => {
   const [token, setToken] = useState('');
@@ -17,10 +18,13 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
     price: 0,
     hotWater: '',
     wifi: '',
+    imageUrls:new Array(),
     ventilation: '',
     drinkingWater: '',
     vacancy: '',
   });
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const webcamRef = useRef(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -38,23 +42,8 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log(response.data);
-        const data = response.data;
-        setFormData({
-          hostelName: data.hostelName,
-          area: data.area,
-          address: data.address,
-          gender: data.gender,
-          rooms: data.rooms,
-          sharing: data.sharing,
-          totalStudents: data.totalStudents,
-          price: data.price,
-          contact: data.contact,
-          hotWater: data.hotWater,
-          wifi: data.wifi,
-          ventilation: data.ventilation,
-          drinkingWater: data.drinkingWater,
-          vacancy: data.vacancy,
-        });
+        const data = response.data.data;
+        setFormData((prev)=>({...prev,...data}))
       } catch (error) {
         toast.error('Error fetching hostel data!');
       }
@@ -78,9 +67,28 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:3000/api/v1/owner/update/${hostelId}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const formDataToSend = new FormData();
+  
+      // Append each form field individually
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
       });
+  
+      // Append each image file
+      images.forEach((image, index) => {
+        formDataToSend.append('images', image);
+      });
+  
+      const response = await axios.put(
+        `http://localhost:3000/api/v1/owner/update/${hostelId}`,
+        formDataToSend,
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
       console.log(response.data);
       toast.success('Hostel information updated successfully!');
       onClose();
@@ -89,6 +97,35 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
       console.error('Error updating hostel:', error.response?.data || error.message);
       toast.error('Error updating hostel information: ' + (error.response?.data?.message || error.message));
     }
+  };
+
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (imageSrc) {
+      fetch(imageSrc)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], `camera_image_${Date.now()}.jpg`, { type: 'image/jpeg' });
+          setImages(prevImages => [...prevImages, file]);
+        });
+      setCameraOpen(false);
+    }
+  }, [webcamRef]);
+
+  const removeImage = (index) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
+  const removeFormImage = (index) => {
+    const newImageUrls = formData.imageUrls.filter((_, i) => i !== index)
+    setFormData((prev)=>({
+      ...prev,
+      imageUrls:newImageUrls
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(prevImages => [...prevImages, ...files]);
   };
 
   return (
@@ -344,18 +381,82 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
                 </div>
               </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Upload Images (Minimum 2 images)</label>
+            <div className="mt-4">
+              <h4 className="text-lg font-medium mb-2">Added Images ({formData.imageUrls.length})</h4>
+              <div className="flex flex-wrap gap-2">
+                {formData.imageUrls.map((image, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={image}
+                      alt={`Uploaded ${index + 1}`}
+                      className="w-24 h-24 object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFormImage(index)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {images.map((image, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt={`Uploaded ${index + 1}`}
+                    className="w-24 h-24 object-cover rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              </div>
+            </div>
+            <div className="mb-4 mt-2">
+              <label className="text-lg font-bold mb-2">New Images (Minimum 2)</label>
               <input
                 type="file"
-                name="images"
                 accept="image/*"
                 multiple
-                onChange={(e) => setImages([...e.target.files])}
+                onChange={handleFileChange}
                 className="w-full p-2 border border-gray-300 rounded-md"
-                required
               />
-            </div>
+              <button
+                type="button"
+                onClick={() => setCameraOpen(true)}
+                className="mt-2 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+              >
+                Capture Image
+              </button>
+              {cameraOpen && (
+                <div className="mt-4">
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    width="100%"
+                  />
+                  <button
+                    onClick={capture}
+                    className="mt-2 w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+                  >
+                    Capture
+                  </button>
+                  <button
+                    onClick={() => setCameraOpen(false)}
+                    className="mt-2 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
+                  >
+                    Close Camera
+                  </button>
+                </div>
+              )}
+              </div>
             <div className="mt-6 text-center">
               <button
                 type="submit"
@@ -378,394 +479,4 @@ const UpdateHostelPopup = ({ hostelId, onClose }) => {
   );
 };
 
-export default UpdateHostelPopup;/*
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import Webcam from 'react-webcam';
-
-const UpdateHostelPopup = ({ hostelId, onClose }) => {
-  const [token, setToken] = useState('');
-  const [images, setImages] = useState([]);
-  const [formData, setFormData] = useState({
-    hostelName: '',
-    area: '',
-    address: '',
-    gender: '',
-    contact: 0,
-    rooms: 0,
-    sharing: 0,
-    totalStudents: 0,
-    price: 0,
-    hotWater: '',
-    wifi: '',
-    ventilation: '',
-    drinkingWater: '',
-    vacancy: '',
-  });
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const webcamRef = useRef(null);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      toast.error("No authentication token found. Please log in.");
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchHostelData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/v1/owner/hostel/${hostelId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = response.data;
-        setFormData({
-          hostelName: data.hostelName,
-          area: data.area,
-          address: data.address,
-          gender: data.gender,
-          rooms: data.rooms,
-          sharing: data.sharing,
-          totalStudents: data.totalStudents,
-          price: data.price,
-          contact: data.contact,
-          hotWater: data.hotWater,
-          wifi: data.wifi,
-          ventilation: data.ventilation,
-          drinkingWater: data.drinkingWater,
-          vacancy: data.vacancy,
-        });
-      } catch (error) {
-        toast.error('Error fetching hostel data!');
-      }
-    };
-
-    if (token) {
-      fetchHostelData();
-    }
-  }, [hostelId, token]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: ['contact', 'rooms', 'sharing', 'totalStudents', 'price'].includes(name)
-        ? parseInt(value, 10) || 0
-        : value,
-    });
-  };
-
-  const handleFileChange = (e) => {
-    setImages([...e.target.files]);
-  };
-
-  const removeImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const updatedFormData = new FormData();
-    Object.keys(formData).forEach(key => updatedFormData.append(key, formData[key]));
-    images.forEach(image => updatedFormData.append('images', image));
-
-    try {
-      const response = await axios.put(`http://localhost:3000/api/v1/owner/update/${hostelId}`, updatedFormData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      toast.success('Hostel information updated successfully!');
-      onClose();
-      window.location.reload();
-    } catch (error) {
-      toast.error('Error updating hostel information: ' + (error.response?.data?.message || error.message));
-    }
-  };
-
-  const capture = useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (imageSrc) {
-      fetch(imageSrc)
-        .then(res => res.blob())
-        .then(blob => {
-          const file = new File([blob], `camera_image_${Date.now()}.jpg`, { type: 'image/jpeg' });
-          setImages(prevImages => [...prevImages, file]);
-        });
-      setCameraOpen(false);
-    }
-  }, [webcamRef]);
-
-  return (
-    <div className='z-10'>
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto relative">
-          <button
-            onClick={onClose}
-            className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <h2 className="text-2xl font-bold mb-6 text-center">Update Hostel Information</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Hostel Name</label>
-                <input
-                  type="text"
-                  name="hostelName"
-                  value={formData.hostelName}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Hostel Name"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Area</label>
-                <input
-                  type="text"
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Area"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Address"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Gender</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="" disabled>Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Both">Both</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Contact Number</label>
-                <input
-                  type="number"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Contact Number"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Number of Rooms</label>
-                <input
-                  type="number"
-                  name="rooms"
-                  value={formData.rooms}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Number of Rooms"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Room Sharing</label>
-                <input
-                  type="number"
-                  name="sharing"
-                  value={formData.sharing}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Number of Sharing"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Total Students</label>
-                <input
-                  type="number"
-                  name="totalStudents"
-                  value={formData.totalStudents}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Total Students"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">Price</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Enter Price"
-                  required
-                />
-              </div>
-            </div>
-            <h3 className="text-lg font-bold mt-6 mb-4">Amenities</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Hot Water</label>
-                <select
-                  name="hotWater"
-                  value={formData.hotWater}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="" disabled>Select Option</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Wi-Fi</label>
-                <select
-                  name="wifi"
-                  value={formData.wifi}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="" disabled>Select Option</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Ventilation</label>
-                <select
-                  name="ventilation"
-                  value={formData.ventilation}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="" disabled>Select Option</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Drinking Water</label>
-                <select
-                  name="drinkingWater"
-                  value={formData.drinkingWater}
-                  onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="" disabled>Select Option</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </div>
-            </div>
-            <h3 className="text-lg font-bold mt-6 mb-4">Vacancy</h3>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Vacancy</label>
-              <input
-                type="text"
-                name="vacancy"
-                value={formData.vacancy}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter Vacancy Information"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Images</label>
-              <input
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className="mb-4"
-              />
-              <div className="flex flex-wrap gap-2">
-                {images.map((image, index) => (
-                  <div key={index} className="relative w-24 h-24">
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt={`Preview ${index}`}
-                      className="w-24 h-24 object-cover rounded-md border border-gray-300"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-0 right-0 bg-red-600 text-white text-xs p-1 rounded-bl-md"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => setCameraOpen(true)}
-                className="mt-2 w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-              >
-                Capture Image with Camera
-              </button>
-              {cameraOpen && (
-                <div className="mt-4">
-                  <Webcam
-                    audio={false}
-                    ref={webcamRef}
-                    screenshotFormat="image/jpeg"
-                    width="100%"
-                  />
-                  <button
-                    onClick={capture}
-                    className="mt-2 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-                  >
-                    Capture
-                  </button>
-                  <button
-                    onClick={() => setCameraOpen(false)}
-                    className="mt-2 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
-                  >
-                    Close Camera
-                  </button>
-                </div>
-              )}
-            </div>
-            <button
-              type="submit"
-              className="mt-6 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-            >
-              Update Hostel
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default UpdateHostelPopup;*/
+export default UpdateHostelPopup;
