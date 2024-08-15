@@ -388,7 +388,6 @@ function UplodeHostel() {
             multiple
             onChange={handleFileChange}
             className="w-full p-2 border border-gray-300 rounded-md"
-            required
           />
           <div className="mt-2">
             {images.map((image, index) => (

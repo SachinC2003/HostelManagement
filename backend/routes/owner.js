@@ -127,8 +127,9 @@ router.post('/feedback', async (req, res) => {
 
 // In your routes/owner.js
 router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req, res) => {
-    const {hostelName, area,address, gender, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
+    const {hostelName, area, address, gender, rooms, sharing, totalStudents, price, contact, hotWater, wifi, ventilation, drinkingWater, vacancy } = req.body;
     const ownerId = req.headers.id;
+    
     // Check if at least 2 images were uploaded
     if (!req.files || req.files.length < 2) {
         return res.status(400).json({
@@ -137,7 +138,10 @@ router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req
         });
     }
 
-    if (!ownerId || !hostelName || !area || !address|| !gender || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
+    // Only keep the first 2 images
+    const filesToUpload = req.files.slice(0, 2);
+
+    if (!ownerId || !hostelName || !area || !address || !gender || !rooms || !sharing || !totalStudents || !price || !contact || !hotWater || !wifi || !ventilation || !drinkingWater || !vacancy) {
         return res.status(400).json({
             status: 400,
             message: 'Bad Request: All fields are required.',
@@ -149,7 +153,7 @@ router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req
 
     try {
         // Upload images to Cloudinary
-        const uploadPromises = req.files.map(file => {
+        const uploadPromises = filesToUpload.map(file => {
             return new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream({ folder: "hostels" }, (error, result) => {
                     if (error) reject(error);
@@ -161,7 +165,7 @@ router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req
         const imageUrls = await Promise.all(uploadPromises);
 
         const hostel = await Hostel.create({
-            owner:ownerId,
+            owner: ownerId,
             hostelName,
             area,
             address,
@@ -194,6 +198,7 @@ router.post("/uploderoom", authmiddleware, upload.array('images', 5), async (req
         });
     }
 });
+
 
 /*---------------------------------------------------------------------------------------------------------------*/
 

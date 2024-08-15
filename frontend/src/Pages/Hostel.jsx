@@ -188,13 +188,12 @@ const Popup = ({ data, onClose }) => {
           <p><strong>Area:</strong> {area}</p>
           <p><strong>Address:</strong> {address}</p>
           <p><strong>Contact:</strong> {contact}</p>
-          <p><strong>Drinking Water:</strong> {drinkingWater}</p>
-          <p><strong>Hot Water:</strong> {hotWater}</p>
-          <p><strong>Owner:</strong> {owner}</p>
           <p><strong>Rooms:</strong> {rooms}</p>
           <p><strong>Sharing:</strong> {sharing}</p>
           <p><strong>Total Students:</strong> {totalStudents}</p>
           <p><strong>Vacancy:</strong> {vacancy}</p>
+          <p><strong>Drinking Water:</strong> {drinkingWater}</p>
+          <p><strong>Hot Water:</strong> {hotWater}</p>
           <p><strong>Ventilation:</strong> {ventilation}</p>
           <p><strong>Wi-Fi:</strong> {wifi}</p>
         </div>
